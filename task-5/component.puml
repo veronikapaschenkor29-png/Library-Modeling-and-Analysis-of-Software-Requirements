@@ -1,0 +1,32 @@
+@startuml
+skinparam componentStyle rectangle
+
+package "Клієнт" {
+  [Web UI] as WebUI
+}
+package "Сервіси" {
+  [Catalog Service] as CatalogService
+  [Loan Service] as LoanService
+  [Member Service] as MemberService
+  [Notification Service] as NotificationService
+}
+package "Інфраструктура" {
+  [Data Access] as DataAccess
+}
+database "БД" as DB
+package "Зовнішні системи" {
+  [Email/SMS] as EmailSMS
+  [Payment] as Payment
+  [OAuth/Identity] as OAuth
+}
+
+WebUI -(0- LoanService : ILoanService
+LoanService -(0- NotificationService : INotificationPort
+LoanService --> DataAccess
+CatalogService --> DataAccess
+MemberService --> DataAccess
+DataAccess --> DB
+NotificationService --> EmailSMS
+LoanService --> Payment
+WebUI --> OAuth
+@enduml
