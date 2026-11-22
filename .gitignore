@@ -6,4 +6,6 @@ build/
 __pycache__/
 .venv/
 *.log
+.env
+*.tmp
 "
