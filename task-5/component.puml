@@ -1,50 +1,99 @@
 @startuml
 skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam defaultTextAlignment center
+skinparam shadowing false
 
-frame "Система" {
-package "Клієнт" {
+title Component Diagram — Бібліотека (Завдання 5)
+
+package "Клієнт" #E3F2FD {
   [Web UI] as WebUI
 }
-package "Сервіси" {
+
+package "API" #E8F5E9 {
+  [API Gateway] as Gateway
+}
+
+package "Сервіси" #FFFDE7 {
   [Catalog Service] as CatalogService
   [Loan Service] as LoanService
   [Member Service] as MemberService
   [Notification Service] as NotificationService
   [Reservation Service] as ReservationService
 }
-package "Інфраструктура" {
+
+package "Інфраструктура" #FFF3E0 {
   [Data Access] as DataAccess
+  [Payment Adapter] as PaymentAdapter
+  [Identity Adapter] as IdentityAdapter
 }
+
 database "БД" as DB
-}
-package "Зовнішні системи" {
+
+package "Зовнішні системи" #F3E5F5 {
   [Email/SMS] as EmailSMS
   [Payment] as Payment
   [OAuth/Identity] as OAuth
 }
 
+interface ILoanApi
+interface IMemberApi
+interface ICatalogApi
+interface IReservationApi
 interface ILoanService
-interface INotificationPort
+interface IMemberService
+interface ICatalogService
 interface IReservationService
+interface IPaymentPort
+interface IOAuthPort
+interface INotificationPort
+interface IEmailSender
 
+' Клієнт -> API
+Gateway -() ILoanApi
+Gateway -() IMemberApi
+Gateway -() ICatalogApi
+Gateway -() IReservationApi
+WebUI ..> ILoanApi
+WebUI ..> IMemberApi
+WebUI ..> ICatalogApi
+WebUI ..> IReservationApi
+
+' API -> Сервіси
 LoanService -() ILoanService
-WebUI ..> ILoanService
-
-NotificationService -() INotificationPort
-LoanService ..> INotificationPort
-
+MemberService -() IMemberService
+CatalogService -() ICatalogService
 ReservationService -() IReservationService
-LoanService ..> IReservationService
+Gateway ..> ILoanService
+Gateway ..> IMemberService
+Gateway ..> ICatalogService
+Gateway ..> IReservationService
 
-LoanService --> ReservationService
+' Інфраструктура: адаптери
+PaymentAdapter -() IPaymentPort
+IdentityAdapter -() IOAuthPort
+NotificationService -() INotificationPort
+EmailSMS -() IEmailSender
+
+' Зв'язки provided/required
+LoanService ..> IPaymentPort
+Gateway ..> IOAuthPort
+LoanService ..> INotificationPort
+NotificationService ..> IEmailSender
+
+' Сервіси -> Сервіси / Дані
+LoanService ..> IReservationService
 LoanService --> CatalogService
 LoanService --> MemberService
 LoanService --> DataAccess
 CatalogService --> DataAccess
-ReservationService --> DataAccess
 MemberService --> DataAccess
+ReservationService --> DataAccess
 DataAccess --> DB
+
+' Адаптери -> Зовнішні системи
+PaymentAdapter --> Payment
+IdentityAdapter --> OAuth
 NotificationService --> EmailSMS
-LoanService --> Payment
-WebUI --> OAuth
+
 @enduml
