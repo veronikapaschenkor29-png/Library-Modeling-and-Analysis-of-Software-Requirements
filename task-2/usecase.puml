@@ -9,16 +9,16 @@ rectangle "Бібліотека" {
   usecase "Позичити книгу" as Borrow
   usecase "Перевірити борги читача" as CheckDebts
   usecase "Повернути книгу" as Return
-  usecase "Сплатити штраф" as PayFine
+  usecase "Створити штраф" as CreateFine
   usecase "Забронювати книгу" as Reserve
 }
 
 Reader --> Borrow
 Reader --> Return
 Reader --> Reserve
-Reader --> PayFine
 Librarian --> Return
 
 Borrow ..> CheckDebts : <<include>>
-PayFine ..> Return : <<extend>>
+Reserve ..> Borrow : <<extend>>
+CreateFine ..> Return : <<extend>>
 @enduml
