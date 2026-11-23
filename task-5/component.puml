@@ -80,11 +80,11 @@ LoanService ..> IPaymentPort
 Gateway ..> IOAuthPort
 LoanService ..> INotificationPort
 NotificationService ..> IEmailSender
+LoanService ..> ICatalogService
+LoanService ..> IMemberService
 
 ' Сервіси -> Сервіси / Дані
 LoanService ..> IReservationService
-LoanService --> CatalogService
-LoanService --> MemberService
 LoanService --> DataAccess
 CatalogService --> DataAccess
 MemberService --> DataAccess
@@ -94,6 +94,5 @@ DataAccess --> DB
 ' Адаптери -> Зовнішні системи
 PaymentAdapter --> Payment
 IdentityAdapter --> OAuth
-NotificationService --> EmailSMS
 
 @enduml

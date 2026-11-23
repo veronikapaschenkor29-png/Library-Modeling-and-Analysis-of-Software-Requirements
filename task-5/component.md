@@ -39,8 +39,8 @@ flowchart TB
     LoanService -->|IReservationService| ReservationService
     LoanService -->|INotificationPort| NotificationService
     LoanService -->|IPaymentPort| PaymentAdapter
-    LoanService --> CatalogService
-    LoanService --> MemberService
+    LoanService -->|ICatalogService| CatalogService
+    LoanService -->|IMemberService| MemberService
     LoanService --> DataAccess
     CatalogService --> DataAccess
     MemberService --> DataAccess
@@ -49,7 +49,6 @@ flowchart TB
     NotificationService -->|IEmailSender| EmailSMS
     PaymentAdapter -->|зовнішній API| Payment
     IdentityAdapter -->|зовнішній API| OAuth
-    NotificationService -->|зовнішній API| EmailSMS
 ```
 
 ## Інтерфейси (provided / required)
@@ -61,7 +60,7 @@ flowchart TB
 | `ICatalogApi` | API Gateway | Web UI | каталог книг |
 | `IReservationApi` | API Gateway | Web UI | бронювання |
 | `ILoanService` | Loan Service | API Gateway | `borrowBook`, `returnBook` |
-| `IMemberService` | Member Service | API Gateway | дані читача |
+| `IMemberService` | Member Service | API Gateway, Loan Service | дані читача |
 | `ICatalogService` | Catalog Service | API Gateway, Loan Service | каталог |
 | `IReservationService` | Reservation Service | Loan Service, API Gateway | `createReservation` |
 | `IPaymentPort` | Payment Adapter | Loan Service | оплата штрафу |
