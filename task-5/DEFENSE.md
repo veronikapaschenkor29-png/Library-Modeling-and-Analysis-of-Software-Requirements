@@ -19,3 +19,4 @@
 - Інтерфейси: provided/required узгоджені між `task-5/component.md`, `task-5/component.puml` і `spec.md` §4.
 - Синтаксис: `component.puml` і `component.md` рендеряться без помилок.
 - Аудит: зовнішні виклики ізольовані адаптерами; межа системи чітка (`spec.md` §1, §3).
+- PR: https://github.com/veronikapaschenkor29-png/Library-Modeling-and-Analysis-of-Software-Requirements/pull/1
