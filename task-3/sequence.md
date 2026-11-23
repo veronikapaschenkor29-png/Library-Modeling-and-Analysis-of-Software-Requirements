@@ -11,7 +11,7 @@ sequenceDiagram
     participant WebUI as Web UI
     participant LoanService as Loan Service
     participant MemberService as Member Service
-    participant Catalog as Catalog
+    participant Catalog as Catalog Service
     participant DB as БД
 
     Reader->>+WebUI: запит видачі
@@ -47,7 +47,7 @@ sequenceDiagram
     actor Reader as Читач
     participant WebUI as Web UI
     participant LoanService as Loan Service
-    participant Catalog as Catalog
+    participant Catalog as Catalog Service
     participant ReservationService as Reservation Service
     participant DB as БД
 
