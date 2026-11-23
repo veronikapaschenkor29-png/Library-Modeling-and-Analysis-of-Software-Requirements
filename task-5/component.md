@@ -83,6 +83,12 @@ flowchart LR
 
     Gateway -.->|requires| ILoanService((ILoanService))
     LoanService[Loan Service] ---|provides| ILoanService
+    Gateway -.->|requires| IMemberService((IMemberService))
+    MemberService[Member Service] ---|provides| IMemberService
+    LoanService -.->|requires| IMemberService
+    Gateway -.->|requires| ICatalogService((ICatalogService))
+    CatalogService[Catalog Service] ---|provides| ICatalogService
+    LoanService -.->|requires| ICatalogService
     Gateway -.->|requires| IReservationService((IReservationService))
     ReservationService[Reservation Service] ---|provides| IReservationService
 

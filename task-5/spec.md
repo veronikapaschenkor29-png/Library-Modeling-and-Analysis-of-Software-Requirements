@@ -16,16 +16,16 @@
 
 | Компонент | Сутності ER | UC / EARS (task-2) | Sequence (task-3) | Activity (task-4) |
 |---|---|---|---|---|
-| Web UI | — | Borrow, Return, Reserve | Діагр. 1–5 | кроки читача |
-| API Gateway | — | усі захищені UC | усі | маршрутизація |
-| Catalog Service | BOOK, BOOK_COPY, BOOK_AUTHOR, BOOK_GENRE | Borrow, Reserve (наявність) | Діагр. 1, 2 | S2, S9 |
-| Loan Service | LOAN, BOOK_COPY, FINE | Borrow, Return, CreateFine | Діагр. 1–5 | S3, S4, S10, S11, S13 |
-| Member Service | MEMBER/USER | CheckDebts | Діагр. 3, 4 | S1a, S1b |
-| Reservation Service | RESERVATION, BOOK | Reserve | Діагр. 2 | S9 |
+| Web UI | — | Borrow, Return, Reserve (EARS-01–06) | Діагр. 1–5 | кроки читача |
+| API Gateway | — | усі захищені UC (EARS-01–06) | усі | маршрутизація |
+| Catalog Service | BOOK, BOOK_COPY, BOOK_AUTHOR, BOOK_GENRE | Borrow, Reserve (наявність) (EARS-01, 04, 05) | Діагр. 1, 2 | S2, S9 |
+| Loan Service | LOAN, BOOK_COPY, FINE | Borrow, Return, CreateFine (EARS-01/06) | Діагр. 1–5 | S3, S4, S10, S11, S13 |
+| Member Service | MEMBER | CheckDebts (EARS-03) | Діагр. 3, 4 | S1a, S1b |
+| Reservation Service | RESERVATION, BOOK | Reserve (EARS-04) | Діагр. 2 | S9 |
 | Notification Service | — | — | — | S5, S6, S12 |
-| Data Access | усі сутності | усі | виклики БД | — |
+| Data Access | усі сутності | усі (EARS-01–06) | виклики БД | — |
 | Payment Adapter | FINE (оплата) | — | — | — |
-| Identity Adapter | USER | — | — | — |
+| Identity Adapter | MEMBER | — | — | — |
 | Database | усі сутності | — | — | — |
 
 ## 3. Зовнішні інтеграції
