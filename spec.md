@@ -1,98 +1,50 @@
 # Специфікація моделі даних: Бібліотека
 
-## 1. Критерії прийняття (Acceptance Criteria)
-- **Нормалізація (3NF):** відсутність дублювання даних і транзитивних залежностей.
-- **Ідентифікатори:** усі сутності мають первинний ключ типу `UUID`.
-- **Розділення користувача та ролей:** обліковий запис `USER` відокремлено від профілів `MEMBER` і `LIBRARIAN` (узагальнення).
-- **Окремий примірник:** `BOOK_COPY` виділено окремо від `BOOK` для обліку фізичних екземплярів.
-- **Асоціативна сутність авторів:** `BOOK_AUTHOR` зберігає порядок авторів (`author_order`).
-- **Штраф за прострочення:** `FINE` створюється при поверненні простроченої видачі (`extend` від «Повернути книгу»).
+Намір: спроєктувати концептуальну ER-модель бібліотеки для обліку каталогу, примірників, читачів, видач, бронювань і штрафів.
 
+## 1. Критерії прийняття
+- **3NF:** без дублювання й транзитивних залежностей; обчислювані агрегати (сума штрафу, кількість позичених книг) не зберігаються.
+- **PK:** усі сутності мають `UUID`. **UK:** `USER.email`, `BOOK.isbn`, `GENRE.slug`, `BOOK_COPY.inventory_number`.
+- **Узагальнення:** `USER` окремо від `MEMBER` і `LIBRARIAN`.
+- **Примірник:** `BOOK_COPY` окремо від `BOOK`.
+- **Автори:** `BOOK_AUTHOR(book_id, author_id, author_order)`.
+- **Жанри:** `BOOK_GENRE(book_id, genre_id)` для M:N `BOOK ↔ GENRE`; PK(`book_id`, `genre_id`).
+- **Штраф:** `FINE` створюється лише при поверненні простроченої видачі (extend від «Повернути книгу»); нагадування штраф не створює. Повернення звільняє статус примірника («доступний»).
 ## 2. Сутності та атрибути
-- **BOOK:** `id` (UUID, PK), `title` (String), `isbn` (String), `year` (Int), `language` (String).
-- **BOOK_COPY:** `id` (UUID, PK), `book_id` (UUID, FK -> BOOK), `inventory_number` (String), `condition` (String), `status` (String).
-- **AUTHOR:** `id` (UUID, PK), `name` (String).
-- **BOOK_AUTHOR:** `book_id` (UUID, FK -> BOOK), `author_id` (UUID, FK -> AUTHOR), `author_order` (Int).
-- **USER:** `id` (UUID, PK), `email` (String), `password_hash` (String), `first_name` (String), `last_name` (String), `role` (String), `created_at` (DateTime).
-- **MEMBER:** `id` (UUID, PK), `user_id` (UUID, FK -> USER), `status` (String).
-- **LIBRARIAN:** `id` (UUID, PK), `user_id` (UUID, FK -> USER), `employee_code` (String).
-- **LOAN:** `id` (UUID, PK), `copy_id` (UUID, FK -> BOOK_COPY), `member_id` (UUID, FK -> MEMBER), `issued_at` (DateTime), `due_at` (DateTime), `returned_at` (DateTime).
-- **RESERVATION:** `id` (UUID, PK), `book_id` (UUID, FK -> BOOK), `member_id` (UUID, FK -> MEMBER), `created_at` (DateTime), `status` (String).
-- **FINE:** `id` (UUID, PK), `loan_id` (UUID, FK -> LOAN), `amount` (Decimal), `reason` (String), `paid` (Boolean).
-- **GENRE:** `id` (UUID, PK), `parent_id` (UUID, FK -> GENRE, Optional), `name` (String), `slug` (String).
-
+- **BOOK/BOOK_COPY:** `BOOK.id` (UUID, PK), `title`, `isbn` (UK), `year`, `language`; `BOOK_COPY.id` (UUID, PK), `book_id` (FK), `inventory_number` (UK), `condition`, `status`.
+- **AUTHOR/BOOK_AUTHOR:** `AUTHOR.id` (UUID, PK), `name`; `BOOK_AUTHOR.book_id` (FK), `author_id` (FK), `author_order`, PK(`book_id`, `author_id`).
+- **USER/MEMBER/LIBRARIAN:** `USER.id` (UUID, PK), `email` (UK), `password_hash`, `first_name`, `last_name`, `role`, `created_at`; `MEMBER.id` (UUID, PK), `user_id` (FK), `status`; `LIBRARIAN.id` (UUID, PK), `user_id` (FK), `employee_code`.
+- **LOAN/RESERVATION:** `LOAN.id` (UUID, PK), `copy_id` (FK), `member_id` (FK), `issued_at`, `due_at`, `returned_at`; `RESERVATION.id` (UUID, PK), `book_id` (FK), `member_id` (FK), `created_at`, `status`.
+- **FINE/GENRE/BOOK_GENRE:** `FINE.id` (UUID, PK), `loan_id` (FK), `amount`, `reason`, `paid`; `GENRE.id` (UUID, PK), `parent_id` (FK, Optional), `name`, `slug` (UK); `BOOK_GENRE.book_id` (FK), `genre_id` (FK), PK(`book_id`, `genre_id`).
 ## 3. Зв'язки
-- `BOOK ||--o{ BOOK_COPY` (1 : 0..N) — книга має примірники.
-- `BOOK ||--o{ BOOK_AUTHOR` (1 : 0..N) — книга має авторів.
-- `AUTHOR ||--o{ BOOK_AUTHOR` (1 : 0..N) — автор пише книги.
-- `BOOK_COPY ||--o{ LOAN` (1 : 0..N) — примірник видається.
-- `MEMBER ||--o{ LOAN` (1 : 0..N) — читач має видачі.
-- `MEMBER ||--o{ RESERVATION` (1 : 0..N) — читач має бронювання.
-- `BOOK ||--o{ RESERVATION` (1 : 0..N) — книга бронюється.
-- `LOAN ||--o{ FINE` (1 : 0..N) — видача може мати штраф.
-- `GENRE ||--o{ GENRE` (1 : 0..N) — ієрархія жанрів (parent of).
-- `USER ||--o| MEMBER` (1 : 0..1) — користувач може бути читачем.
-- `USER ||--o| LIBRARIAN` (1 : 0..1) — користувач може бути бібліотекарем.
-
+`BOOK ||--o{ BOOK_COPY`; `BOOK ||--o{ BOOK_AUTHOR`; `AUTHOR ||--o{ BOOK_AUTHOR`; `BOOK_COPY ||--o{ LOAN`; `MEMBER ||--o{ LOAN`; `MEMBER ||--o{ RESERVATION`; `BOOK ||--o{ RESERVATION`; `LOAN ||--o{ FINE`; `GENRE ||--o{ GENRE`; `BOOK ||--o{ BOOK_GENRE`; `GENRE ||--o{ BOOK_GENRE`; `USER ||--o| MEMBER`; `USER ||--o| LIBRARIAN`.
 ## 4. Актори
-- **Читач** (Primary) — шукає книги, позичає, бронює, сплачує штрафи.
-- **Бібліотекар** (Primary) — видає і приймає книги, керує каталогом.
-Платіжний шлюз і email-сервіс не є акторами (деталі реалізації).
-
+Читач і Бібліотекар (primary). Платіжний шлюз і email-сервіс не є акторами.
 ## 5. Вимоги EARS
-- **EARS-01 (Event-driven):** WHEN читач запитує видачу AND примірник доступний, THE SYSTEM SHALL створити видачу з терміном 14 днів.
-- **EARS-02 (Unwanted Behavior):** IF читач має прострочені борги, THEN система SHALL відмовити у видачі з повідомленням.
-- **EARS-03 (Unwanted Behavior):** IF читач уже має 5 позичених книг, THEN система SHALL відмовити у видачі.
-- **EARS-04 (Event-driven):** WHEN примірника немає в наявності, THE SYSTEM SHALL запропонувати бронювання і створити `RESERVATION`.
-- **EARS-05 (State-driven):** WHILE примірник видається, система SHALL тримати його статус «на руках».
-- **EARS-06 (Event-driven):** WHEN читач повертає прострочену книгу, THE SYSTEM SHALL створити `FINE` (extend від «Повернути книгу»).
-
+- **EARS-01:** WHEN читач запитує видачу AND примірник доступний, THE SYSTEM SHALL створити видачу на 14 днів.
+- **EARS-02:** IF читач має прострочені борги, THEN система SHALL відмовити у видачі.
+- **EARS-03:** IF читач уже має 5 позичених книг, THEN система SHALL відмовити у видачі.
+- **EARS-04:** WHEN примірника немає, THE SYSTEM SHALL запропонувати бронювання і створити `RESERVATION`.
+- **EARS-05:** WHILE примірник має статус «на руках», система SHALL блокувати його видачу і бронювання іншим читачам.
+- **EARS-06:** WHEN читач повертає прострочену книгу, THE SYSTEM SHALL створити `FINE` (extend від «Повернути книгу»).
 ## 6. Gherkin-сценарії
-```gherkin
-Feature: Позичення книги (EARS-01..04)
-
-  Scenario: Успішна видача
-    Given читач має 0 прострочених і 2 позичені книги
-    And є доступний примірник
-    When читач запитує видачу
-    Then створюється видача з терміном 14 днів
-    And статус примірника «на руках»
-
-  Scenario: Книги немає → пропозиція забронювати
-    Given читач запитує книгу, примірників немає
-    When система перевіряє наявність
-    Then пропонується бронювання
-    And створюється RESERVATION
-
-  Scenario: Є прострочені борги → відмова
-    Given читач має прострочені видачі
-    When читач запитує видачу
-    Then система відмовляє з повідомленням
-
-  Scenario: Перевищено ліміт 5 книг → відмова
-    Given читач має 5 позичених книг
-    When читач запитує видачу
-    Then система відмовляє через перевищення ліміту
-```
-
-## 7. Нефункціональні вимоги (NFR)
-- **NFR-01 (Performance):** відповідь ≤ 2 с для 95% запитів при 200 одночасних користувачах.
-- **NFR-02 (Compatibility):** веб-інтерфейс для desktop і мобільних браузерів.
-- **NFR-03 (Localization):** мова UI — українська.
-- **NFR-04 (Security):** паролі хешуються bcrypt або argon2.
-
+`Feature: Позичення і повернення книги (EARS-01..06)`; сценарії: успішна видача; книги немає → бронювання; прострочені борги → відмова; перевищено ліміт 5 книг → відмова; повернення простроченої книги → `FINE`; примірник на руках блокується.
+## 7. NFR
+**NFR-01:** відповідь ≤ 2 с для 95% запитів при 200 одночасних. **NFR-02:** веб-інтерфейс desktop і мобільних. **NFR-03:** мова UI — українська. **NFR-04:** паролі хешуються bcrypt/argon2.
 ## 8. Поза обсягом
-- Електронні книги.
-- Міжбібліотечний обмін.
-- Фізична логістика.
-
+Електронні книги, міжбібліотечний обмін, фізична логістика.
 ## 9. Матриця трасування
-
 | Вимога | UC | Сценарій |
 | :--- | :--- | :--- |
 | EARS-01 | Позичити книгу | Успішна видача |
-| EARS-02 | Позичити книгу | Є прострочені борги → відмова |
+| EARS-02 | Позичити книгу | Прострочені борги → відмова |
 | EARS-03 | Позичити книгу | Перевищено ліміт 5 книг → відмова |
-| EARS-04 | Позичити книгу | Книги немає → пропозиція забронювати |
-| EARS-05 | Позичити книгу | Успішна видача |
-| EARS-06 | Повернути книгу | Сплатити штраф (extend) |
+| EARS-04 | Позичити книгу | Книги немає → бронювання |
+| EARS-05 | Позичити книгу | Примірник на руках блокується |
+| EARS-06 | Повернути книгу | Повернення простроченої книги → штраф |
+
+## 10. Трасування діаграм і NFR
+- Sequence: 4 сценарії видачі + повернення простроченої книги → `FINE`; учасник `Reservation Service` для бронювання.
+- Activity: fork/join для видачі/статусу, повідомлення, нагадування, `FINE`.
+- Component: Loan/Member/Catalog/Notification, Data Access, БД, Email/SMS, Payment, OAuth.
+- NFR-01..04 перевіряються відповідними тестами продуктивності, сумісності, локалізації і безпеки.
