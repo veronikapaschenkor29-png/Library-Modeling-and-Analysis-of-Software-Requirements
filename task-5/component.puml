@@ -1,6 +1,7 @@
 @startuml
 skinparam componentStyle rectangle
 
+frame "Система" {
 package "Клієнт" {
   [Web UI] as WebUI
 }
@@ -9,21 +10,38 @@ package "Сервіси" {
   [Loan Service] as LoanService
   [Member Service] as MemberService
   [Notification Service] as NotificationService
+  [Reservation Service] as ReservationService
 }
 package "Інфраструктура" {
   [Data Access] as DataAccess
 }
 database "БД" as DB
+}
 package "Зовнішні системи" {
   [Email/SMS] as EmailSMS
   [Payment] as Payment
   [OAuth/Identity] as OAuth
 }
 
-WebUI -(0- LoanService : ILoanService
-LoanService -(0- NotificationService : INotificationPort
+interface ILoanService
+interface INotificationPort
+interface IReservationService
+
+LoanService -() ILoanService
+WebUI ..> ILoanService
+
+NotificationService -() INotificationPort
+LoanService ..> INotificationPort
+
+ReservationService -() IReservationService
+LoanService ..> IReservationService
+
+LoanService --> ReservationService
+LoanService --> CatalogService
+LoanService --> MemberService
 LoanService --> DataAccess
 CatalogService --> DataAccess
+ReservationService --> DataAccess
 MemberService --> DataAccess
 DataAccess --> DB
 NotificationService --> EmailSMS
