@@ -1,5 +1,7 @@
 # Sequence-діаграми: позичення книги
 
+**Аудит:** activation bars збалансовані: відкриття/закриття відповідають, фінальні `deactivate` стоять після `end`; учасники узгоджені з ER-моделлю.
+
 ## Діаграма 1. Успішна видача
 
 ```mermaid
@@ -80,15 +82,16 @@ sequenceDiagram
 
     Reader->>+WebUI: запит видачі
     WebUI->>+LoanService: borrowBook(memberId, bookId)
-    opt Перевірка боргів
-        LoanService->>+MemberService: checkDebts(memberId)
-        MemberService->>+DB: findOverdueLoans(memberId)
-        DB-->>-MemberService: борги є
-        MemberService-->>-LoanService: hasDebts = true
-    end
+    LoanService->>+MemberService: checkDebts(memberId)
+    MemberService->>+DB: findOverdueLoans(memberId)
+    DB-->>-MemberService: борги є/немає
+    MemberService-->>-LoanService: hasDebts
     alt Є прострочені борги
-        LoanService-->>WebUI: відмова
+        LoanService-->>WebUI: відмова (борги)
         WebUI-->>Reader: повідомлення про борги
+    else Боргів немає
+        LoanService-->>WebUI: продовжити до перевірки ліміту/наявності (Діаграми 1/4)
+        WebUI-->>Reader: продовжити видачу
     end
     deactivate LoanService
     deactivate WebUI
@@ -114,6 +117,41 @@ sequenceDiagram
     alt Перевищено ліміт (>= 5)
         LoanService-->>WebUI: відмова (ліміт)
         WebUI-->>Reader: перевищено ліміт 5 книг
+    end
+    deactivate LoanService
+    deactivate WebUI
+```
+
+## Діаграма 5. Повернення простроченої книги → `FINE`
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Reader as Читач
+    participant WebUI as Web UI
+    participant LoanService as Loan Service
+    participant DB as БД
+
+    Reader->>+WebUI: повернення книги
+    WebUI->>+LoanService: returnBook(loanId)
+    LoanService->>+DB: findLoan(loanId)
+    DB-->>-LoanService: loan
+    alt Прострочено
+        LoanService->>+DB: updateLoan(loanId, returned_at, status="повернено")
+        DB-->>-LoanService: ok
+        LoanService->>+DB: createFine(loanId, amount, paid=false)
+        DB-->>-LoanService: fine
+        LoanService->>+DB: updateCopyStatus(loan.copyId, "доступний")
+        DB-->>-LoanService: ok
+        LoanService-->>WebUI: штраф створено
+        WebUI-->>Reader: повідомлення про штраф
+    else Вчасно
+        LoanService->>+DB: updateLoan(loanId, returned_at, status="повернено")
+        DB-->>-LoanService: ok
+        LoanService->>+DB: updateCopyStatus(loan.copyId, "доступний")
+        DB-->>-LoanService: ok
+        LoanService-->>WebUI: повернення прийнято
+        WebUI-->>Reader: без штрафу
     end
     deactivate LoanService
     deactivate WebUI
