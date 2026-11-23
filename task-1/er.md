@@ -11,13 +11,15 @@ erDiagram
     BOOK ||--o{ RESERVATION : reserved
     LOAN ||--o{ FINE : incurs
     GENRE ||--o{ GENRE : "parent of"
+    BOOK ||--o{ BOOK_GENRE : has
+    GENRE ||--o{ BOOK_GENRE : classifies
     USER ||--o| MEMBER : is
     USER ||--o| LIBRARIAN : is
 
     BOOK {
         uuid id PK
         string title
-        string isbn
+        string isbn UK
         int year
         string language
     }
@@ -25,7 +27,7 @@ erDiagram
     BOOK_COPY {
         uuid id PK
         uuid book_id FK
-        string inventory_number
+        string inventory_number UK
         string condition
         string status
     }
@@ -40,10 +42,11 @@ erDiagram
         uuid author_id FK
         int author_order
     }
+    %% PK: (book_id, author_id)
 
     USER {
         uuid id PK
-        string email
+        string email UK
         string password_hash
         string first_name
         string last_name
@@ -92,6 +95,14 @@ erDiagram
         uuid id PK
         uuid parent_id FK
         string name
-        string slug
+        string slug UK
     }
+
+    BOOK_GENRE {
+        uuid book_id FK
+        uuid genre_id FK
+    }
+    %% PK: (book_id, genre_id)
 ```
+
+Складені PK: `BOOK_AUTHOR(book_id, author_id)`, `BOOK_GENRE(book_id, genre_id)`.
