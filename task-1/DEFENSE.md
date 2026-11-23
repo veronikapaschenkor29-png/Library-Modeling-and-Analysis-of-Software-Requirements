@@ -7,8 +7,8 @@
 | # | Що було не так (проти якого пункту spec) | Мій слід (промпт / фідбек / дод. spec) | Виправлення (коміт) |
 |---|---|---|---|
 | 1 | Відсутній зв'язок `BOOK↔GENRE` і UK-обмеження (`spec.md` §1–3) | `ai/01-task1-er.md` · фідбек #4–5 · `spec.md` §1–3 | `4a75f68` |
-| 2 | Відсутні `inventory_number UK` і явний composite PK для `BOOK_GENRE` (`spec.md` §1–2) | `ai/01-task1-er.md` · аудит ER · `spec.md` §1–2 | `b7d6ca7` |
-| 3 | Композитний PK для `BOOK_AUTHOR` не був зафіксований у моделі (`spec.md` §1–2) | `ai/01-task1-er.md` · фідбек #1 · `spec.md` §1–2 | `e5068dd` |
+| 2 | Відсутні `inventory_number UK` і явний composite PK для `BOOK_GENRE` (`spec.md` §1–2) | `ai/01-task1-er.md` · аудит ER · `spec.md` §1–2 | `dd377c6` |
+| 3 | Композитний PK для `BOOK_AUTHOR` не був зафіксований у моделі (`spec.md` §1–2) | `ai/01-task1-er.md` · фідбек #1 · `spec.md` §1–2 | `dd377c6` |
 
 ## 3. Ключове рішення
 `BOOK_COPY` окремо від `BOOK`, щоб обліковувати стан і статус кожного примірника; `USER` з узагальненням `MEMBER/LIBRARIAN`, щоб розділити автентифікацію і профілі ролей (`docs/adr/0001-separate-book-copy.md`, `docs/adr/0003-user-generalization.md`).

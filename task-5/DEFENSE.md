@@ -6,9 +6,9 @@
 ## 2. Топ-3 розбіжності, які я знайшов і виправив (spec ↔ вихід AI)
 | # | Що було не так (проти якого пункту spec) | Мій слід (промпт / фідбек / дод. spec) | Виправлення (коміт) |
 |---|---|---|---|
-| 1 | Інтерфейси не були явно визначені (`spec.md` §1–3) | `ai/05-task5-component.md` · фідбек #1 · `task-5/component.md` | `7ba605a` |
-| 2 | Зовнішні сервіси були змішані з внутрішніми (`spec.md` §1–3) | `ai/05-task5-component.md` · фідбек #2 · `task-5/component.md` | `7ba605a` |
-| 3 | Компонентний шлях не показував `returnBook` і provided/required інтерфейси (`task-5/component.md`) | `ai/05-task5-component.md` · README note | `59d8979` |
+| 1 | Інтерфейси не були явно визначені (`spec.md` §1–3) | `ai/05-task5-component.md` · фідбек #1 · `task-5/component.md` | `b7a0993` |
+| 2 | Зовнішні сервіси були змішані з внутрішніми (`spec.md` §1–3) | `ai/05-task5-component.md` · фідбек #2 · `task-5/component.md` | `b7a0993` |
+| 3 | Компонентний шлях не показував `returnBook` і provided/required інтерфейси (`task-5/component.md`) | `ai/05-task5-component.md` · README note | `b7a0993` |
 
 ## 3. Ключове рішення
 Компоненти відповідають сервісам і сутностям; зовнішні інтеграції ізольовані через інтерфейси `ILoanService` і `INotificationPort`.
