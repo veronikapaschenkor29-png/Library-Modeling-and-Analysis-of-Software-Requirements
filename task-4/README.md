@@ -11,7 +11,7 @@
 
 ## Вхідні дані
 
-Процес UC_Borrow (видача книги), обраний у Завданні 2; сценарії S1-S5 з task-2/scenarios.feature; учасники і сутності ER з Завдань 1 і 3 (у відповідних гілках).
+Процес UC_Borrow (видача книги), обраний у Завданні 2; сценарії S1-S5 (видача книги); учасники і сутності ER з Завдань 1 і 3 (у відповідних гілках).
 
 ## Як переглянути
 
@@ -39,4 +39,4 @@
 - Смуги ⊆ учасники послідовності (Читач, Система, Бібліотекар).
 - Вузли даних ⊆ сутності ER (MEMBER, LIBRARIAN, BOOK_COPY, LOAN, RESERVATION).
 
-Заборонено: символ «-» (лише «-»), STORE, PRODUCT, ORDER, REVIEW, CATEGORY, Seller, Customer, Anonymous, BOOK_GENRE.
+Заборонено: символ «—» (лише «-»), STORE, PRODUCT, ORDER, REVIEW, CATEGORY, Seller, Customer, Anonymous, BOOK_GENRE.
