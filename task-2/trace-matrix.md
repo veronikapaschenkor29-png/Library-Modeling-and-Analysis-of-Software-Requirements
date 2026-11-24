@@ -1,4 +1,4 @@
-# Матриця трасування вимог (Traceability Matrix) — Завдання 2
+# Матриця трасування вимог (Traceability Matrix) - Завдання 2
 
 ## 1. Матриця покриття (EARS → Use Cases → Gherkin → Sequence → Activity → Компоненти)
 
@@ -29,7 +29,7 @@
 
 ### Return (Повернути книгу)
 - **Preconditions:** існує `LOAN` для примірника; повернення ініціює Читач/Бібліотекар.
-- **Postconditions:** `LOAN.returned_at` і статус оновлені; `BOOK_COPY.status` → «доступний»; якщо прострочено — створено `FINE` (EARS-06).
+- **Postconditions:** `LOAN.returned_at` і статус оновлені; `BOOK_COPY.status` → «доступний»; якщо прострочено - створено `FINE` (EARS-06).
 
 ### Reserve (Забронювати книгу)
 - **Preconditions:** примірників `BOOK_COPY` для `BOOK` немає в наявності.
@@ -39,24 +39,24 @@
 
 | Компонент | Сутності ER | UC / EARS | Sequence | Activity |
 | :--- | :--- | :--- | :--- | :--- |
-| Web UI | — | Borrow, Return, Reserve (EARS-01–06) | Діагр. 1–5 | кроки читача |
-| API Gateway | — | усі захищені UC | усі | маршрутизація |
-| Auth Service | `USER`, `LIBRARIAN` | — | — | — |
+| Web UI | - | Borrow, Return, Reserve (EARS-01–06) | Діагр. 1–5 | кроки читача |
+| API Gateway | - | усі захищені UC | усі | маршрутизація |
+| Auth Service | `USER`, `LIBRARIAN` | - | - | - |
 | Catalog Service | `BOOK`, `BOOK_COPY`, `BOOK_AUTHOR`, `BOOK_GENRE`, `AUTHOR`, `GENRE` | Borrow, Reserve (наявність) (EARS-01, 04, 05) | Діагр. 1, 2 | `S2`, `S9` |
 | Loan Service | `LOAN`, `BOOK_COPY`, `FINE` | Borrow, Return, CreateFine (EARS-01–03, 06) | Діагр. 1–5 | `S3`, `S4`, `S10`, `S11`, `S13` |
 | Member Service | `MEMBER` | CheckDebts (EARS-02, 03) | Діагр. 3, 4 | `S1a`, `S1b` |
 | Reservation Service | `RESERVATION`, `BOOK` | Reserve (EARS-04) | Діагр. 2 | `S9` |
-| Notification Service | — | — | — | `S5`, `S6`, `S12` |
-| Data Access | усі сутності | усі (EARS-01–06) | виклики БД | — |
-| Payment Adapter | `FINE` (оплата) | — | — | — |
-| Identity Adapter | — | — | — | — |
-| Outbox Relay Worker | — | — | — | — |
-| Overdue Scheduler | `LOAN`, `FINE` | CreateFine (EARS-06) | — | — |
-| Database | усі сутності | — | — | — |
+| Notification Service | - | - | - | `S5`, `S6`, `S12` |
+| Data Access | усі сутності | усі (EARS-01–06) | виклики БД | - |
+| Payment Adapter | `FINE` (оплата) | - | - | - |
+| Identity Adapter | - | - | - | - |
+| Outbox Relay Worker | - | - | - | - |
+| Overdue Scheduler | `LOAN`, `FINE` | CreateFine (EARS-06) | - | - |
+| Database | усі сутності | - | - | - |
 
 ## 5. Поза обсягом
 - Електронні книги, міжбібліотечний обмін, фізична логістика (`../spec.md`, розд. 8).
-- Оплата штрафів через зовнішній платіжний шлюз — може бути додана пізніше (`../task-5/spec.md`, розд. 6).
+- Оплата штрафів через зовнішній платіжний шлюз - може бути додана пізніше (`../task-5/spec.md`, розд. 6).
 
 ## 6. Перевірка покриття
 - Усі `EARS-01..06` мають щонайменше один UC, Gherkin-сценарій, sequence-діаграму, вузли activity і компоненти.
