@@ -11,8 +11,8 @@
 
 ## 3. Актори (Actors)
 - **Людина:**
-  - `Читач` — шукає книги, позичає, повертає, бронює.
-  - `Бібліотекар` — видає і приймає книги (участь у `Return`).
+  - `Читач` - шукає книги, позичає, повертає, бронює.
+  - `Бібліотекар` - видає і приймає книги (участь у `Return`).
 - Зовнішні сервіси (email/SMS, платіжний шлюз) не є акторами; штраф створює система.
 
 ## 4. Критерії прийняття (Acceptance Criteria)
@@ -21,9 +21,9 @@
 3. **Модель Use Cases:** `Borrow ..> CheckDebts : <<include>>`; `Reserve ..> Borrow : <<extend>>`; `CreateFine ..> Return : <<extend>>` (`usecase.puml`).
 4. **Трасування:** матриця N:M між EARS та Use Cases; кожен Use Case має щонайменше одну вимогу (`trace-matrix.md`).
 5. **Блокування/штраф:** `EARS-05` і `EARS-06` покриті Use Cases і Gherkin-сценаріями.
-6. **Однозначність:** термін видачі — 14 днів; ліміт — 5 активних позик; прострочення → `FINE`; `BOOK_COPY.status` оновлюється при видачі/поверненні.
+6. **Однозначність:** термін видачі - 14 днів; ліміт - 5 активних позик; прострочення → `FINE`; `BOOK_COPY.status` оновлюється при видачі/поверненні.
 7. **NFR:** `NFR-01..NFR-04` (`../spec.md`, розд. 7) трасуються до UC і сутностей у `trace-matrix.md`.
-8. **Рендеринг:** UML-версія — `usecase.puml` (PlantUML); Mermaid-блоки рендеряться на GitHub.
+8. **Рендеринг:** UML-версія - `usecase.puml` (PlantUML); Mermaid-блоки рендеряться на GitHub.
 9. **Актори:** лише Читач і Бібліотекар (зовнішні сервіси не актори).
 
 ## 5. Use Cases
@@ -46,7 +46,7 @@
 ## 7. Нефункціональні вимоги (NFR)
 - **NFR-01:** відповідь ≤ 2 с для 95% запитів при 200 одночасних.
 - **NFR-02:** веб-інтерфейс desktop і мобільних.
-- **NFR-03:** мова UI — українська.
+- **NFR-03:** мова UI - українська.
 - **NFR-04:** паролі хешуються bcrypt/argon2.
 
 ## 8. Gherkin-сценарії
@@ -59,11 +59,11 @@
 - Примірник на руках блокується (EARS-05)
 
 ## 9. Трасування
-Детальна матриця — `trace-matrix.md` (UC ↔ EARS ↔ Gherkin ↔ Sequence (task-3) ↔ Activity (task-4) ↔ Компоненти (task-5)). Коротка відповідність: `EARS-01` → `Borrow` → «Успішна видача»; `EARS-02` → `CheckDebts` → «Є прострочені борги → відмова»; `EARS-03` → `Borrow` → «Перевищено ліміт 5 книг → відмова»; `EARS-04` → `Reserve` → «Книги немає → пропозиція забронювати»; `EARS-05` → `Borrow`/`Reserve` → «Примірник на руках блокується»; `EARS-06` → `Return`/`CreateFine` → «Повернення простроченої книги → штраф».
+Детальна матриця - `trace-matrix.md` (UC ↔ EARS ↔ Gherkin ↔ Sequence (task-3) ↔ Activity (task-4) ↔ Компоненти (task-5)). Коротка відповідність: `EARS-01` → `Borrow` → «Успішна видача»; `EARS-02` → `CheckDebts` → «Є прострочені борги → відмова»; `EARS-03` → `Borrow` → «Перевищено ліміт 5 книг → відмова»; `EARS-04` → `Reserve` → «Книги немає → пропозиція забронювати»; `EARS-05` → `Borrow`/`Reserve` → «Примірник на руках блокується»; `EARS-06` → `Return`/`CreateFine` → «Повернення простроченої книги → штраф».
 
 ## 10. Архітектурні рішення
-- `../docs/adr/0004-fine-on-overdue.md` — `FINE` створюється лише при поверненні простроченої видачі.
-- `../docs/adr/0005-borrow-include-debts-check.md` — `Перевірити борги читача` як `<<include>>` до «Позичити книгу».
-- `../docs/adr/0006-fine-as-extend-on-return.md` — `Створити штраф` як `<<extend>>` від «Повернути книгу» (уточнення ADR 0004).
-- `../docs/adr/0003-user-generalization.md` — узагальнення `USER` → `MEMBER`/`LIBRARIAN`.
-- `../docs/adr/0001-separate-book-copy.md`, `../docs/adr/0002-book-author-associative.md` — ER-рішення task-1.
+- `../docs/adr/0004-fine-on-overdue.md` - `FINE` створюється лише при поверненні простроченої видачі.
+- `../docs/adr/0005-borrow-include-debts-check.md` - `Перевірити борги читача` як `<<include>>` до «Позичити книгу».
+- `../docs/adr/0006-fine-as-extend-on-return.md` - `Створити штраф` як `<<extend>>` від «Повернути книгу» (уточнення ADR 0004).
+- `../docs/adr/0003-user-generalization.md` - узагальнення `USER` → `MEMBER`/`LIBRARIAN`.
+- `../docs/adr/0001-separate-book-copy.md`, `../docs/adr/0002-book-author-associative.md` - ER-рішення task-1.
