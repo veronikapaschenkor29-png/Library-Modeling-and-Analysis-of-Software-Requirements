@@ -2,6 +2,11 @@
 
 Процес позичення книги зі swimlanes. Деталі вимог — у [spec.md](../spec.md). Діаграма — у [activity.md](activity.md).
 
+## Артефакти
+
+- [spec.md](spec.md) — специфікація завдання 4 (бізнес-процес, activity).
+- [../docs/adr/0004-fine-on-overdue.md](../docs/adr/0004-fine-on-overdue.md), [../docs/adr/0008-activity-fork-join-status.md](../docs/adr/0008-activity-fork-join-status.md), [../docs/adr/0010-outbox-after-commit-email.md](../docs/adr/0010-outbox-after-commit-email.md) — архітектурні рішення.
+
 ## Мета
 Змоделювати процес позичення/повернення книги з розподілом відповідальності між акторами, розгалуженнями за станом читача і примірника, паралельними гілками (`fork`/`join`) та потоком повідомлень.
 

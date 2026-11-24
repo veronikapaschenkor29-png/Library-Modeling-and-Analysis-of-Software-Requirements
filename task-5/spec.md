@@ -58,9 +58,10 @@
 
 ## 5. Транзакції та події
 
+* **Архітектурний стиль:** модульний моноліт, `API Gateway`, адаптери до зовнішніх систем, outbox (ADR 0009, `../docs/adr/0009-modular-monolith-api-gateway-adapters-outbox.md`).
 * **Видача (`borrowBook`):** в одній транзакції — перевірка боргів/ліміту (Member Service), вибір доступного `BOOK_COPY`, створення `LOAN`, оновлення `BOOK_COPY.status` → «на руках»; блокування рядка примірника (`SELECT ... FOR UPDATE`) або унікальний статус для уникнення гонок.
 * **Повернення (`returnBook`):** в одній транзакції — оновлення `LOAN` (`returned_at`, статус), створення `FINE` за прострочення (ADR 0004, `docs/adr/0004-fine-on-overdue.md`), оновлення `BOOK_COPY.status` → «доступний».
-* **Події:** повернення/бронювання → outbox (Loan/Reservation Service) → Outbox Relay Worker → Notification Service → Email/SMS (`sendLoanCreated`, `sendReminder`, повідомлення про повернення).
+* **Події:** outbox-запис у тій самій транзакції, надсилання після коміту, збій надсилання не відкочує операцію (ADR 0010, `../docs/adr/0010-outbox-after-commit-email.md`): повернення/бронювання → outbox (Loan/Reservation Service) → Outbox Relay Worker → Notification Service → Email/SMS (`sendLoanCreated`, `sendReminder`, повідомлення про повернення).
 * **Overdue Scheduler:** періодично знаходить прострочені `LOAN` і створює `FINE` (ADR 0004, `docs/adr/0004-fine-on-overdue.md`), надсилає нагадування через outbox.
 
 ## 6. Out of Scope

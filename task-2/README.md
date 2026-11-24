@@ -7,8 +7,9 @@
 - [ears.md](ears.md) — EARS-01..06 (вимоги до позичення/повернення).
 - [usecase.puml](usecase.puml) — UML Use Case діаграма (PlantUML).
 - [scenarios.feature](scenarios.feature) — Gherkin-сценарії.
+- [spec.md](spec.md) — специфікація завдання 2 (вимоги, NFR, трасування).
 - [../spec.md](../spec.md) — специфікація (розд. 5–10, трасування).
-- [../docs/adr/0004-fine-on-overdue.md](../docs/adr/0004-fine-on-overdue.md) — штраф при простроченні.
+- [../docs/adr/0001-separate-book-copy.md](../docs/adr/0001-separate-book-copy.md), [../docs/adr/0002-book-author-associative.md](../docs/adr/0002-book-author-associative.md), [../docs/adr/0003-user-generalization.md](../docs/adr/0003-user-generalization.md), [../docs/adr/0004-fine-on-overdue.md](../docs/adr/0004-fine-on-overdue.md), [../docs/adr/0005-borrow-include-debts-check.md](../docs/adr/0005-borrow-include-debts-check.md), [../docs/adr/0006-fine-as-extend-on-return.md](../docs/adr/0006-fine-as-extend-on-return.md) — архітектурні рішення.
 - [../ai/02-task2-usecases.md](../ai/02-task2-usecases.md) — узагальнений AI-слід (вербатимних промптів немає, див. [../ai/README.md](../ai/README.md)).
 
 ## Що покрито

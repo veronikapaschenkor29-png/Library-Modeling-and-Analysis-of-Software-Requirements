@@ -8,6 +8,7 @@
 - `component.md` — оглядова Mermaid-діаграма + таблиця provided/required-інтерфейсів (рендериться на GitHub).
 - `spec.md` — специфікація: намір і критерії, компоненти та відповідальність, зовнішні інтеграції, інтерфейси, транзакції та події, out of scope, критерії перевірки.
 - `DEFENSE.md` — захист: що просили у AI, топ-3 розбіжності (spec ↔ вихід AI), ключове рішення, перевірка.
+- Релевантні ADR: [../docs/adr/0004-fine-on-overdue.md](../docs/adr/0004-fine-on-overdue.md), [../docs/adr/0009-modular-monolith-api-gateway-adapters-outbox.md](../docs/adr/0009-modular-monolith-api-gateway-adapters-outbox.md), [../docs/adr/0010-outbox-after-commit-email.md](../docs/adr/0010-outbox-after-commit-email.md).
 
 ## Як переглянути
 

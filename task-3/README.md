@@ -3,6 +3,11 @@
 ## Мета
 Окрема sequence-діаграма на кожен із 5 сценаріїв позичення і повернення книги; учасники узгоджені з ER-моделлю та компонентами. Деталі — у [spec.md](../spec.md). Діаграми — у [sequence.md](sequence.md).
 
+## Артефакти
+
+- [spec.md](spec.md) — специфікація завдання 3 (взаємодія, sequence).
+- [../docs/adr/0005-borrow-include-debts-check.md](../docs/adr/0005-borrow-include-debts-check.md), [../docs/adr/0006-fine-as-extend-on-return.md](../docs/adr/0006-fine-as-extend-on-return.md), [../docs/adr/0007-sequence-per-scenario.md](../docs/adr/0007-sequence-per-scenario.md) — архітектурні рішення.
+
 ## 5 сценаріїв
 
 1. [Успішна видача](sequence.md#діаграма-1-успішна-видача) — перевірка боргів, видача примірника, створення `LOAN` (14 днів).
