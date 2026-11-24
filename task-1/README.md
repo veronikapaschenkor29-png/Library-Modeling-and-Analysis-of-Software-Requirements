@@ -5,6 +5,7 @@
 
 ## Артефакти
 - [er.md](er.md) — ER-діаграма (Mermaid `erDiagram`) і перелік складених PK.
+- [spec.md](spec.md) — специфікація завдання 1 (сутності, атрибути, зв'язки).
 - [../spec.md](../spec.md) — специфікація: сутності, атрибути, зв'язки, EARS (розд. 1–4).
 - [../docs/adr/0001-separate-book-copy.md](../docs/adr/0001-separate-book-copy.md), [../docs/adr/0002-book-author-associative.md](../docs/adr/0002-book-author-associative.md), [../docs/adr/0003-user-generalization.md](../docs/adr/0003-user-generalization.md) — архітектурні рішення.
 - [../ai/01-task1-er.md](../ai/01-task1-er.md) — узагальнений AI-слід (вербатимних промптів немає, див. [../ai/README.md](../ai/README.md)).

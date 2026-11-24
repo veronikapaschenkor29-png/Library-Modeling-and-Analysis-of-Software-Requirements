@@ -1,0 +1,213 @@
+@startuml d1-successful-borrow
+autonumber
+
+actor "Читач" as Reader
+participant "Web UI" as WebUI
+participant "Loan Service" as LoanService
+participant "Member Service" as MemberService
+participant "Catalog Service" as CatalogService
+participant "Reservation Service" as ReservationService
+participant "Notification Service" as NotificationService
+participant "Data Access" as DataAccess
+database "БД" as DB
+
+Reader -> WebUI : запит видачі
+activate WebUI
+WebUI -> LoanService : borrowBook(memberId, bookId)
+activate LoanService
+LoanService -> MemberService : checkDebts(memberId)
+activate MemberService
+MemberService -> DB : findOverdueLoans(memberId)
+activate DB
+DB --> MemberService : борги є/немає
+deactivate DB
+MemberService --> LoanService : hasDebts
+deactivate MemberService
+alt Борги є
+  LoanService --> WebUI : відмова (борги)
+  WebUI --> Reader : повідомлення про борги
+else Боргів немає
+  LoanService -> CatalogService : getAvailableCopy(bookId)
+  activate CatalogService
+  CatalogService -> DB : findAvailableCopy(bookId)
+  activate DB
+  DB --> CatalogService : copy
+  deactivate DB
+  CatalogService --> LoanService : copy
+  deactivate CatalogService
+  LoanService -> DB : createLoan(copyId, memberId, dueAt)
+  activate DB
+  DB --> LoanService : loan
+  deactivate DB
+  LoanService -> DB : updateCopyStatus(copyId, "на руках")
+  activate DB
+  DB --> LoanService : ok
+  deactivate DB
+  LoanService --> WebUI : loan створено
+  WebUI --> Reader : книгу видано (14 днів)
+end
+deactivate LoanService
+deactivate WebUI
+@enduml
+
+@startuml d2-no-copy-reservation
+autonumber
+
+actor "Читач" as Reader
+participant "Web UI" as WebUI
+participant "Loan Service" as LoanService
+participant "Member Service" as MemberService
+participant "Catalog Service" as CatalogService
+participant "Reservation Service" as ReservationService
+participant "Notification Service" as NotificationService
+participant "Data Access" as DataAccess
+database "БД" as DB
+
+Reader -> WebUI : запит видачі
+activate WebUI
+WebUI -> LoanService : borrowBook(memberId, bookId)
+activate LoanService
+LoanService -> CatalogService : getAvailableCopy(bookId)
+activate CatalogService
+CatalogService -> DB : findAvailableCopy(bookId)
+activate DB
+DB --> CatalogService : немає
+deactivate DB
+CatalogService --> LoanService : null
+deactivate CatalogService
+alt Примірника немає
+  LoanService -> ReservationService : createReservation(bookId, memberId)
+  activate ReservationService
+  ReservationService -> DB : insertReservation(bookId, memberId)
+  activate DB
+  DB --> ReservationService : reservation
+  deactivate DB
+  ReservationService --> LoanService : reservation
+  deactivate ReservationService
+  LoanService --> WebUI : пропозиція бронювання
+  WebUI --> Reader : заброньовано
+end
+deactivate LoanService
+deactivate WebUI
+@enduml
+
+@startuml d3-debt-rejection
+autonumber
+
+actor "Читач" as Reader
+participant "Web UI" as WebUI
+participant "Loan Service" as LoanService
+participant "Member Service" as MemberService
+participant "Catalog Service" as CatalogService
+participant "Reservation Service" as ReservationService
+participant "Notification Service" as NotificationService
+participant "Data Access" as DataAccess
+database "БД" as DB
+
+Reader -> WebUI : запит видачі
+activate WebUI
+WebUI -> LoanService : borrowBook(memberId, bookId)
+activate LoanService
+LoanService -> MemberService : checkDebts(memberId)
+activate MemberService
+MemberService -> DB : findOverdueLoans(memberId)
+activate DB
+DB --> MemberService : борги є/немає
+deactivate DB
+MemberService --> LoanService : hasDebts
+deactivate MemberService
+alt Є прострочені борги
+  LoanService --> WebUI : відмова (борги)
+  WebUI --> Reader : повідомлення про борги
+else Боргів немає
+  LoanService --> WebUI : продовжити до перевірки ліміту/наявності (Діаграми 1/4)
+  WebUI --> Reader : продовжити видачу
+end
+deactivate LoanService
+deactivate WebUI
+@enduml
+
+@startuml d4-limit-exceeded
+autonumber
+
+actor "Читач" as Reader
+participant "Web UI" as WebUI
+participant "Loan Service" as LoanService
+participant "Member Service" as MemberService
+participant "Catalog Service" as CatalogService
+participant "Reservation Service" as ReservationService
+participant "Notification Service" as NotificationService
+participant "Data Access" as DataAccess
+database "БД" as DB
+
+Reader -> WebUI : запит видачі
+activate WebUI
+WebUI -> LoanService : borrowBook(memberId, bookId)
+activate LoanService
+LoanService -> MemberService : countActiveLoans(memberId)
+activate MemberService
+MemberService -> DB : countLoans(memberId)
+activate DB
+DB --> MemberService : 5
+deactivate DB
+MemberService --> LoanService : count = 5
+deactivate MemberService
+alt Перевищено ліміт (>= 5)
+  LoanService --> WebUI : відмова (ліміт)
+  WebUI --> Reader : перевищено ліміт 5 книг
+end
+deactivate LoanService
+deactivate WebUI
+@enduml
+
+@startuml d5-return-overdue-fine
+autonumber
+
+actor "Читач" as Reader
+participant "Web UI" as WebUI
+participant "Loan Service" as LoanService
+participant "Member Service" as MemberService
+participant "Catalog Service" as CatalogService
+participant "Reservation Service" as ReservationService
+participant "Notification Service" as NotificationService
+participant "Data Access" as DataAccess
+database "БД" as DB
+
+Reader -> WebUI : повернення книги
+activate WebUI
+WebUI -> LoanService : returnBook(loanId)
+activate LoanService
+LoanService -> DB : findLoan(loanId)
+activate DB
+DB --> LoanService : loan
+deactivate DB
+alt Прострочено
+  LoanService -> DB : updateLoan(loanId, returned_at, status="повернено")
+  activate DB
+  DB --> LoanService : ok
+  deactivate DB
+  LoanService -> DB : createFine(loanId, amount, paid=false)
+  activate DB
+  DB --> LoanService : fine
+  deactivate DB
+  LoanService -> DB : updateCopyStatus(loan.copyId, "доступний")
+  activate DB
+  DB --> LoanService : ok
+  deactivate DB
+  LoanService --> WebUI : штраф створено
+  WebUI --> Reader : повідомлення про штраф
+else Вчасно
+  LoanService -> DB : updateLoan(loanId, returned_at, status="повернено")
+  activate DB
+  DB --> LoanService : ok
+  deactivate DB
+  LoanService -> DB : updateCopyStatus(loan.copyId, "доступний")
+  activate DB
+  DB --> LoanService : ok
+  deactivate DB
+  LoanService --> WebUI : повернення прийнято
+  WebUI --> Reader : без штрафу
+end
+deactivate LoanService
+deactivate WebUI
+@enduml
