@@ -4,6 +4,13 @@ skinparam packageStyle rectangle
 skinparam defaultTextAlignment center
 skinparam shadowing false
 
+top to bottom direction
+skinparam linetype ortho
+
+skinparam ranksep 190
+skinparam nodesep 140
+skinparam ArrowFontSize 10
+skinparam packagePadding 55
 title Component Diagram — Бібліотека (Завдання 5)
 
 package "Клієнт" #E3F2FD {
@@ -17,82 +24,76 @@ package "API" #E8F5E9 {
 package "Сервіси" #FFFDE7 {
   [Catalog Service] as CatalogService
   [Loan Service] as LoanService
-  [Member Service] as MemberService
-  [Notification Service] as NotificationService
   [Reservation Service] as ReservationService
+  [Member Service] as MemberService
+  [Auth Service] as AuthService
+  [Notification Service] as NotificationService
 }
 
 package "Інфраструктура" #FFF3E0 {
   [Data Access] as DataAccess
   [Payment Adapter] as PaymentAdapter
   [Identity Adapter] as IdentityAdapter
+  [Outbox Relay Worker] as OutboxRelay
+  [Overdue Scheduler] as OverdueScheduler
 }
 
 database "БД" as DB
 
 package "Зовнішні системи" #F3E5F5 {
-  [Email/SMS] as EmailSMS
   [Payment] as Payment
   [OAuth/Identity] as OAuth
+  [Email/SMS] as EmailSMS
 }
 
-interface ILoanApi
-interface IMemberApi
-interface ICatalogApi
-interface IReservationApi
-interface ILoanService
-interface IMemberService
-interface ICatalogService
-interface IReservationService
-interface IPaymentPort
-interface IOAuthPort
-interface INotificationPort
-interface IEmailSender
+' --- Суворе вирівнювання колонок ---
+CatalogService -[hidden]right-> LoanService
+LoanService -[hidden]right-> ReservationService
+ReservationService -[hidden]right-> MemberService
+MemberService -[hidden]right-> AuthService
+AuthService -[hidden]right-> NotificationService
 
-' Клієнт -> API
-Gateway -() ILoanApi
-Gateway -() IMemberApi
-Gateway -() ICatalogApi
-Gateway -() IReservationApi
-WebUI ..> ILoanApi
-WebUI ..> IMemberApi
-WebUI ..> ICatalogApi
-WebUI ..> IReservationApi
+DataAccess -[hidden]right-> PaymentAdapter
+PaymentAdapter -[hidden]right-> IdentityAdapter
+IdentityAdapter -[hidden]right-> OutboxRelay
+OutboxRelay -[hidden]right-> OverdueScheduler
 
-' API -> Сервіси
-LoanService -() ILoanService
-MemberService -() IMemberService
-CatalogService -() ICatalogService
-ReservationService -() IReservationService
-Gateway ..> ILoanService
-Gateway ..> IMemberService
-Gateway ..> ICatalogService
-Gateway ..> IReservationService
+Payment -[hidden]right-> OAuth
+OAuth -[hidden]right-> EmailSMS
+' --- Фіксація ярусів ---
+WebUI -[hidden]down-> Gateway
+Gateway -[hidden]down-> LoanService
+PaymentAdapter -[hidden]down-> Payment
+IdentityAdapter -[hidden]down-> OAuth
+NotificationService -[hidden]down-> EmailSMS
 
-' Інфраструктура: адаптери
-PaymentAdapter -() IPaymentPort
-IdentityAdapter -() IOAuthPort
-NotificationService -() INotificationPort
-EmailSMS -() IEmailSender
-
-' Зв'язки provided/required
-LoanService ..> IPaymentPort
-Gateway ..> IOAuthPort
-LoanService ..> INotificationPort
-NotificationService ..> IEmailSender
-LoanService ..> ICatalogService
-LoanService ..> IMemberService
-
-' Сервіси -> Сервіси / Дані
-LoanService ..> IReservationService
-LoanService --> DataAccess
-CatalogService --> DataAccess
-MemberService --> DataAccess
-ReservationService --> DataAccess
-DataAccess --> DB
-
-' Адаптери -> Зовнішні системи
-PaymentAdapter --> Payment
-IdentityAdapter --> OAuth
+' === 1. Клієнт -> API ===
+WebUI -(0- Gateway : \nILoanApi, IMemberApi,\nICatalogApi, IReservationApi
+' === 2. API -> Сервіси ===
+Gateway -(0- LoanService : \nILoanService
+Gateway -(0- CatalogService : \nICatalogService
+Gateway -(0- MemberService : \nIMemberService
+Gateway -(0- ReservationService : \nIReservationService
+Gateway -(0- AuthService : \nIAuthService
+' === 3. Сервіси -> Інфраструктура / Сервіси ===
+LoanService -(0- PaymentAdapter : \nIPaymentPort
+LoanService -(0- NotificationService : \nINotificationPort
+LoanService -(0- ReservationService : \nIReservationService
+LoanService -(0- CatalogService : \nICatalogService
+LoanService -(0- MemberService : \nIMemberService
+LoanService -(0- DataAccess : \nIOutbox
+ReservationService -(0- DataAccess : \nIOutbox
+AuthService -(0- IdentityAdapter : \nIOAuthPort
+AuthService --> DataAccess
+' === 4. Воркери ===
+LoanService -0)- OverdueScheduler : \nILoanService
+OutboxRelay -(0- DataAccess : \nIOutbox
+NotificationService -0)- OutboxRelay : \nINotificationPort
+' === 5. Дані ===
+DataAccess -(0- DB : \nIDbConnection
+' === 6. Зовнішні системи (тільки через адаптери) ===
+PaymentAdapter ..> Payment : зовнішній API
+IdentityAdapter ..> OAuth : зовнішній API
+NotificationService -(0- EmailSMS : \nIEmailSender
 
 @enduml
