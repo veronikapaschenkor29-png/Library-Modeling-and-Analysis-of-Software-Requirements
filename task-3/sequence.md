@@ -6,34 +6,28 @@
 
 ```plantuml
 @startuml S1_Success
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 14
 title UC_Borrow: Успішна видача на 14 днів
 actor "Читач" as R
 actor "Бібліотекар" as L
-participant "Сервіс видачі" as S
-participant "Примірник (BOOK_COPY)" as C
-participant "Видача (LOAN)" as N
-R -> S : запит видачі книги
-activate S
-S -> N : перевірити активні позики та борги читача
-activate N
-N --> S : 0 прострочених, 2 активні позики
-deactivate N
-L -> S : підтвердити наявність примірника
+participant "Сервіс" as S
+participant "BOOK_COPY" as C
+participant "LOAN" as N
+R -> S : запит видачі
+S -> N : перевірка боргів
+N --> S : 0 прострочених, 2 активні
+L -> S : наявність примірника
 S -> C : перевірити статус примірника
-activate C
-C --> S : статус доступний
-deactivate C
+C --> S : статус: доступний
 alt ліміт не перевищено і боргів немає
-  S -> N : створити видачу (термін 14 днів)
-  activate N
+  S -> N : створити LOAN (14 днів)
   N --> S : LOAN створено
-  deactivate N
-  S -> C : встановити статус «на руках»
-  S --> R : видача оформлена, термін 14 днів
+  S -> C : статус: на руках
+  S --> R : видача оформлена
 else
   S --> R : відмова
 end
-deactivate S
 @enduml
 ```
 
@@ -43,27 +37,23 @@ deactivate S
 
 ```plantuml
 @startuml S2_NoCopy_Reserve
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 14
 title UC_Borrow: Книги немає, пропонується бронювання
 actor "Читач" as R
-participant "Сервіс видачі" as S
-participant "Примірник (BOOK_COPY)" as C
-participant "Бронювання (RESERVATION)" as RES
+participant "Сервіс" as S
+participant "BOOK_COPY" as C
+participant "RESERVATION" as RES
 R -> S : запит книги
-activate S
-S -> C : перевірити наявність примірника
-activate C
+S -> C : перевірка примірника
 C --> S : примірників немає
-deactivate C
 alt немає вільного примірника
-  S -> RES : створити бронювання
-  activate RES
+  S -> RES : створити RESERVATION
   RES --> S : RESERVATION створено
-  deactivate RES
   S --> R : пропонується бронювання
 else примірник є
   S --> R : переходимо до видачі
 end
-deactivate S
 @enduml
 ```
 
@@ -73,22 +63,20 @@ deactivate S
 
 ```plantuml
 @startuml S3_Debts_Refused
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 14
 title UC_Borrow: Відмова при прострочених боргах
 actor "Читач" as R
-participant "Сервіс видачі" as S
-participant "Видача (LOAN)" as N
-R -> S : запит видачі книги
-activate S
-S -> N : перевірити прострочені видачі
-activate N
-N --> S : є прострочені видачі
-deactivate N
-alt є прострочені видачі
-  S --> R : відмова з повідомленням про борг
+participant "Сервіс" as S
+participant "LOAN" as N
+R -> S : запит видачі
+S -> N : перевірка боргів
+N --> S : борги є
+alt борги є
+  S --> R : відмова
 else боргів немає
   S --> R : перейти до перевірки ліміту
 end
-deactivate S
 @enduml
 ```
 
@@ -98,22 +86,20 @@ deactivate S
 
 ```plantuml
 @startuml S4_Limit_Refused
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 14
 title UC_Borrow: Відмова при перевищенні ліміту 5 позик
 actor "Читач" as R
-participant "Сервіс видачі" as S
-participant "Видача (LOAN)" as N
-R -> S : запит видачі книги
-activate S
-S -> N : перевірити кількість активних позик
-activate N
+participant "Сервіс" as S
+participant "LOAN" as N
+R -> S : запит видачі
+S -> N : перевірка позик
 N --> S : 5 активних позик
-deactivate N
 alt активних позик 5 і більше
-  S --> R : відмова через перевищення ліміту
+  S --> R : відмова
 else менше 5
   S --> R : перейти до видачі
 end
-deactivate S
 @enduml
 ```
 
@@ -123,22 +109,20 @@ deactivate S
 
 ```plantuml
 @startuml S5_Copy_Blocked
+skinparam sequenceMessageAlign center
+skinparam defaultFontSize 14
 title UC_Borrow: Примірник на руках блокує видачу
 actor "Читач 2" as R2
-participant "Сервіс видачі" as S
-participant "Примірник (BOOK_COPY)" as C
-R2 -> S : запит видачі примірника
-activate S
+participant "Сервіс" as S
+participant "BOOK_COPY" as C
+R2 -> S : запит видачі
 S -> C : перевірити статус примірника
-activate C
-C --> S : статус «на руках»
-deactivate C
+C --> S : статус: на руках
 alt примірник недоступний
-  S --> R2 : відмова, примірник недоступний
+  S --> R2 : відмова
 else примірник доступний
   S --> R2 : видача дозволена
 end
-deactivate S
 @enduml
 ```
 
