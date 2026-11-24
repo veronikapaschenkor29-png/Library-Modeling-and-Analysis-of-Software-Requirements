@@ -1,158 +1,145 @@
-# Sequence-діаграми: позичення книги
+# Діаграми послідовності: UC_Borrow (Завдання 3)
 
-**Аудит:** activation bars збалансовані: відкриття/закриття відповідають, фінальні `deactivate` стоять після `end`; учасники узгоджені з ER-моделлю.
+Діаграми описують п'ять сценаріїв UC_Borrow; код дослівно з task-3/sequence.puml; рендер PlantUML.
 
-## Діаграма 1. Успішна видача
+## S1. Успішна видача (EARS-01)
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Reader as Читач
-    participant WebUI as Web UI
-    participant LoanService as Loan Service
-    participant MemberService as Member Service
-    participant Catalog as Catalog Service
-    participant DB as БД
-
-    Reader->>+WebUI: запит видачі
-    WebUI->>+LoanService: borrowBook(memberId, bookId)
-    LoanService->>+MemberService: checkDebts(memberId)
-    MemberService->>+DB: findOverdueLoans(memberId)
-    DB-->>-MemberService: борги є/немає
-    MemberService-->>-LoanService: hasDebts
-    alt Борги є
-        LoanService-->>WebUI: відмова (борги)
-        WebUI-->>Reader: повідомлення про борги
-    else Боргів немає
-        LoanService->>+Catalog: getAvailableCopy(bookId)
-        Catalog->>+DB: findAvailableCopy(bookId)
-        DB-->>-Catalog: copy
-        Catalog-->>-LoanService: copy
-        LoanService->>+DB: createLoan(copyId, memberId, dueAt)
-        DB-->>-LoanService: loan
-        LoanService->>+DB: updateCopyStatus(copyId, "на руках")
-        DB-->>-LoanService: ok
-        LoanService-->>WebUI: loan створено
-        WebUI-->>Reader: книгу видано (14 днів)
-    end
-    deactivate LoanService
-    deactivate WebUI
+```plantuml
+@startuml S1_Success
+title UC_Borrow: Успішна видача на 14 днів
+actor "Читач" as R
+actor "Бібліотекар" as L
+participant "Сервіс видачі" as S
+participant "Примірник (BOOK_COPY)" as C
+participant "Видача (LOAN)" as N
+R -> S : запит видачі книги
+activate S
+S -> N : перевірити активні позики та борги читача
+activate N
+N --> S : 0 прострочених, 2 активні позики
+deactivate N
+L -> S : підтвердити наявність примірника
+S -> C : перевірити статус примірника
+activate C
+C --> S : статус доступний
+deactivate C
+alt ліміт не перевищено і боргів немає
+  S -> N : створити видачу (термін 14 днів)
+  activate N
+  N --> S : LOAN створено
+  deactivate N
+  S -> C : встановити статус «на руках»
+  S --> R : видача оформлена, термін 14 днів
+else
+  S --> R : відмова
+end
+deactivate S
+@enduml
 ```
 
-## Діаграма 2. Примірника немає → бронювання
+Діаграма показує успішну видачу книги на 14 днів при відсутності боргів і неперевищенні ліміту.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Reader as Читач
-    participant WebUI as Web UI
-    participant LoanService as Loan Service
-    participant Catalog as Catalog Service
-    participant ReservationService as Reservation Service
-    participant DB as БД
+## S2. Книги немає → пропозиція забронювати (EARS-04)
 
-    Reader->>+WebUI: запит видачі
-    WebUI->>+LoanService: borrowBook(memberId, bookId)
-    LoanService->>+Catalog: getAvailableCopy(bookId)
-    Catalog->>+DB: findAvailableCopy(bookId)
-    DB-->>-Catalog: немає
-    Catalog-->>-LoanService: null
-    alt Примірника немає
-        LoanService->>+ReservationService: createReservation(bookId, memberId)
-        ReservationService->>+DB: insertReservation(bookId, memberId)
-        DB-->>-ReservationService: reservation
-        ReservationService-->>-LoanService: reservation
-        LoanService-->>WebUI: пропозиція бронювання
-        WebUI-->>Reader: заброньовано
-    end
-    deactivate LoanService
-    deactivate WebUI
+```plantuml
+@startuml S2_NoCopy_Reserve
+title UC_Borrow: Книги немає, пропонується бронювання
+actor "Читач" as R
+participant "Сервіс видачі" as S
+participant "Примірник (BOOK_COPY)" as C
+participant "Бронювання (RESERVATION)" as RES
+R -> S : запит книги
+activate S
+S -> C : перевірити наявність примірника
+activate C
+C --> S : примірників немає
+deactivate C
+alt немає вільного примірника
+  S -> RES : створити бронювання
+  activate RES
+  RES --> S : RESERVATION створено
+  deactivate RES
+  S --> R : пропонується бронювання
+else примірник є
+  S --> R : переходимо до видачі
+end
+deactivate S
+@enduml
 ```
 
-## Діаграма 3. Відмова через борги
+Діаграма показує пропозицію бронювання, коли вільного примірника немає.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Reader as Читач
-    participant WebUI as Web UI
-    participant LoanService as Loan Service
-    participant MemberService as Member Service
-    participant DB as БД
+## S3. Є прострочені борги → відмова (EARS-02)
 
-    Reader->>+WebUI: запит видачі
-    WebUI->>+LoanService: borrowBook(memberId, bookId)
-    LoanService->>+MemberService: checkDebts(memberId)
-    MemberService->>+DB: findOverdueLoans(memberId)
-    DB-->>-MemberService: борги є/немає
-    MemberService-->>-LoanService: hasDebts
-    alt Є прострочені борги
-        LoanService-->>WebUI: відмова (борги)
-        WebUI-->>Reader: повідомлення про борги
-    else Боргів немає
-        LoanService-->>WebUI: продовжити до перевірки ліміту/наявності (Діаграми 1/4)
-        WebUI-->>Reader: продовжити видачу
-    end
-    deactivate LoanService
-    deactivate WebUI
+```plantuml
+@startuml S3_Debts_Refused
+title UC_Borrow: Відмова при прострочених боргах
+actor "Читач" as R
+participant "Сервіс видачі" as S
+participant "Видача (LOAN)" as N
+R -> S : запит видачі книги
+activate S
+S -> N : перевірити прострочені видачі
+activate N
+N --> S : є прострочені видачі
+deactivate N
+alt є прострочені видачі
+  S --> R : відмова з повідомленням про борг
+else боргів немає
+  S --> R : перейти до перевірки ліміту
+end
+deactivate S
+@enduml
 ```
 
-## Діаграма 4. Перевищено ліміт 5 книг
+Діаграма показує відмову у видачі при наявності прострочених боргів.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Reader as Читач
-    participant WebUI as Web UI
-    participant LoanService as Loan Service
-    participant MemberService as Member Service
-    participant DB as БД
+## S4. Перевищено ліміт 5 книг → відмова (EARS-03)
 
-    Reader->>+WebUI: запит видачі
-    WebUI->>+LoanService: borrowBook(memberId, bookId)
-    LoanService->>+MemberService: countActiveLoans(memberId)
-    MemberService->>+DB: countLoans(memberId)
-    DB-->>-MemberService: 5
-    MemberService-->>-LoanService: count = 5
-    alt Перевищено ліміт (>= 5)
-        LoanService-->>WebUI: відмова (ліміт)
-        WebUI-->>Reader: перевищено ліміт 5 книг
-    end
-    deactivate LoanService
-    deactivate WebUI
+```plantuml
+@startuml S4_Limit_Refused
+title UC_Borrow: Відмова при перевищенні ліміту 5 позик
+actor "Читач" as R
+participant "Сервіс видачі" as S
+participant "Видача (LOAN)" as N
+R -> S : запит видачі книги
+activate S
+S -> N : перевірити кількість активних позик
+activate N
+N --> S : 5 активних позик
+deactivate N
+alt активних позик 5 і більше
+  S --> R : відмова через перевищення ліміту
+else менше 5
+  S --> R : перейти до видачі
+end
+deactivate S
+@enduml
 ```
 
-## Діаграма 5. Повернення простроченої книги → `FINE`
+Діаграма показує відмову у видачі при перевищенні ліміту активних позик.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Reader as Читач
-    participant WebUI as Web UI
-    participant LoanService as Loan Service
-    participant DB as БД
+## S5. Примірник на руках блокується (EARS-05)
 
-    Reader->>+WebUI: повернення книги
-    WebUI->>+LoanService: returnBook(loanId)
-    LoanService->>+DB: findLoan(loanId)
-    DB-->>-LoanService: loan
-    alt Прострочено
-        LoanService->>+DB: updateLoan(loanId, returned_at, status="повернено")
-        DB-->>-LoanService: ok
-        LoanService->>+DB: createFine(loanId, amount, paid=false)
-        DB-->>-LoanService: fine
-        LoanService->>+DB: updateCopyStatus(loan.copyId, "доступний")
-        DB-->>-LoanService: ok
-        LoanService-->>WebUI: штраф створено
-        WebUI-->>Reader: повідомлення про штраф
-    else Вчасно
-        LoanService->>+DB: updateLoan(loanId, returned_at, status="повернено")
-        DB-->>-LoanService: ok
-        LoanService->>+DB: updateCopyStatus(loan.copyId, "доступний")
-        DB-->>-LoanService: ok
-        LoanService-->>WebUI: повернення прийнято
-        WebUI-->>Reader: без штрафу
-    end
-    deactivate LoanService
-    deactivate WebUI
+```plantuml
+@startuml S5_Copy_Blocked
+title UC_Borrow: Примірник на руках блокує видачу
+actor "Читач 2" as R2
+participant "Сервіс видачі" as S
+participant "Примірник (BOOK_COPY)" as C
+R2 -> S : запит видачі примірника
+activate S
+S -> C : перевірити статус примірника
+activate C
+C --> S : статус «на руках»
+deactivate C
+alt примірник недоступний
+  S --> R2 : відмова, примірник недоступний
+else примірник доступний
+  S --> R2 : видача дозволена
+end
+deactivate S
+@enduml
 ```
+
+Діаграма показує блокування видачі примірника, що вже на руках.

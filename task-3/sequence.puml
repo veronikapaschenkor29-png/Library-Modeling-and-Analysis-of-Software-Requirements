@@ -1,213 +1,111 @@
-@startuml d1-successful-borrow
-autonumber
-
-actor "Читач" as Reader
-participant "Web UI" as WebUI
-participant "Loan Service" as LoanService
-participant "Member Service" as MemberService
-participant "Catalog Service" as CatalogService
-participant "Reservation Service" as ReservationService
-participant "Notification Service" as NotificationService
-participant "Data Access" as DataAccess
-database "БД" as DB
-
-Reader -> WebUI : запит видачі
-activate WebUI
-WebUI -> LoanService : borrowBook(memberId, bookId)
-activate LoanService
-LoanService -> MemberService : checkDebts(memberId)
-activate MemberService
-MemberService -> DB : findOverdueLoans(memberId)
-activate DB
-DB --> MemberService : борги є/немає
-deactivate DB
-MemberService --> LoanService : hasDebts
-deactivate MemberService
-alt Борги є
-  LoanService --> WebUI : відмова (борги)
-  WebUI --> Reader : повідомлення про борги
-else Боргів немає
-  LoanService -> CatalogService : getAvailableCopy(bookId)
-  activate CatalogService
-  CatalogService -> DB : findAvailableCopy(bookId)
-  activate DB
-  DB --> CatalogService : copy
-  deactivate DB
-  CatalogService --> LoanService : copy
-  deactivate CatalogService
-  LoanService -> DB : createLoan(copyId, memberId, dueAt)
-  activate DB
-  DB --> LoanService : loan
-  deactivate DB
-  LoanService -> DB : updateCopyStatus(copyId, "на руках")
-  activate DB
-  DB --> LoanService : ok
-  deactivate DB
-  LoanService --> WebUI : loan створено
-  WebUI --> Reader : книгу видано (14 днів)
+@startuml S1_Success
+title UC_Borrow: Успішна видача на 14 днів
+actor "Читач" as R
+actor "Бібліотекар" as L
+participant "Сервіс видачі" as S
+participant "Примірник (BOOK_COPY)" as C
+participant "Видача (LOAN)" as N
+R -> S : запит видачі книги
+activate S
+S -> N : перевірити активні позики та борги читача
+activate N
+N --> S : 0 прострочених, 2 активні позики
+deactivate N
+L -> S : підтвердити наявність примірника
+S -> C : перевірити статус примірника
+activate C
+C --> S : статус доступний
+deactivate C
+alt ліміт не перевищено і боргів немає
+  S -> N : створити видачу (термін 14 днів)
+  activate N
+  N --> S : LOAN створено
+  deactivate N
+  S -> C : встановити статус «на руках»
+  S --> R : видача оформлена, термін 14 днів
+else
+  S --> R : відмова
 end
-deactivate LoanService
-deactivate WebUI
+deactivate S
 @enduml
 
-@startuml d2-no-copy-reservation
-autonumber
-
-actor "Читач" as Reader
-participant "Web UI" as WebUI
-participant "Loan Service" as LoanService
-participant "Member Service" as MemberService
-participant "Catalog Service" as CatalogService
-participant "Reservation Service" as ReservationService
-participant "Notification Service" as NotificationService
-participant "Data Access" as DataAccess
-database "БД" as DB
-
-Reader -> WebUI : запит видачі
-activate WebUI
-WebUI -> LoanService : borrowBook(memberId, bookId)
-activate LoanService
-LoanService -> CatalogService : getAvailableCopy(bookId)
-activate CatalogService
-CatalogService -> DB : findAvailableCopy(bookId)
-activate DB
-DB --> CatalogService : немає
-deactivate DB
-CatalogService --> LoanService : null
-deactivate CatalogService
-alt Примірника немає
-  LoanService -> ReservationService : createReservation(bookId, memberId)
-  activate ReservationService
-  ReservationService -> DB : insertReservation(bookId, memberId)
-  activate DB
-  DB --> ReservationService : reservation
-  deactivate DB
-  ReservationService --> LoanService : reservation
-  deactivate ReservationService
-  LoanService --> WebUI : пропозиція бронювання
-  WebUI --> Reader : заброньовано
+@startuml S2_NoCopy_Reserve
+title UC_Borrow: Книги немає, пропонується бронювання
+actor "Читач" as R
+participant "Сервіс видачі" as S
+participant "Примірник (BOOK_COPY)" as C
+participant "Бронювання (RESERVATION)" as RES
+R -> S : запит книги
+activate S
+S -> C : перевірити наявність примірника
+activate C
+C --> S : примірників немає
+deactivate C
+alt немає вільного примірника
+  S -> RES : створити бронювання
+  activate RES
+  RES --> S : RESERVATION створено
+  deactivate RES
+  S --> R : пропонується бронювання
+else примірник є
+  S --> R : переходимо до видачі
 end
-deactivate LoanService
-deactivate WebUI
+deactivate S
 @enduml
 
-@startuml d3-debt-rejection
-autonumber
-
-actor "Читач" as Reader
-participant "Web UI" as WebUI
-participant "Loan Service" as LoanService
-participant "Member Service" as MemberService
-participant "Catalog Service" as CatalogService
-participant "Reservation Service" as ReservationService
-participant "Notification Service" as NotificationService
-participant "Data Access" as DataAccess
-database "БД" as DB
-
-Reader -> WebUI : запит видачі
-activate WebUI
-WebUI -> LoanService : borrowBook(memberId, bookId)
-activate LoanService
-LoanService -> MemberService : checkDebts(memberId)
-activate MemberService
-MemberService -> DB : findOverdueLoans(memberId)
-activate DB
-DB --> MemberService : борги є/немає
-deactivate DB
-MemberService --> LoanService : hasDebts
-deactivate MemberService
-alt Є прострочені борги
-  LoanService --> WebUI : відмова (борги)
-  WebUI --> Reader : повідомлення про борги
-else Боргів немає
-  LoanService --> WebUI : продовжити до перевірки ліміту/наявності (Діаграми 1/4)
-  WebUI --> Reader : продовжити видачу
+@startuml S3_Debts_Refused
+title UC_Borrow: Відмова при прострочених боргах
+actor "Читач" as R
+participant "Сервіс видачі" as S
+participant "Видача (LOAN)" as N
+R -> S : запит видачі книги
+activate S
+S -> N : перевірити прострочені видачі
+activate N
+N --> S : є прострочені видачі
+deactivate N
+alt є прострочені видачі
+  S --> R : відмова з повідомленням про борг
+else боргів немає
+  S --> R : перейти до перевірки ліміту
 end
-deactivate LoanService
-deactivate WebUI
+deactivate S
 @enduml
 
-@startuml d4-limit-exceeded
-autonumber
-
-actor "Читач" as Reader
-participant "Web UI" as WebUI
-participant "Loan Service" as LoanService
-participant "Member Service" as MemberService
-participant "Catalog Service" as CatalogService
-participant "Reservation Service" as ReservationService
-participant "Notification Service" as NotificationService
-participant "Data Access" as DataAccess
-database "БД" as DB
-
-Reader -> WebUI : запит видачі
-activate WebUI
-WebUI -> LoanService : borrowBook(memberId, bookId)
-activate LoanService
-LoanService -> MemberService : countActiveLoans(memberId)
-activate MemberService
-MemberService -> DB : countLoans(memberId)
-activate DB
-DB --> MemberService : 5
-deactivate DB
-MemberService --> LoanService : count = 5
-deactivate MemberService
-alt Перевищено ліміт (>= 5)
-  LoanService --> WebUI : відмова (ліміт)
-  WebUI --> Reader : перевищено ліміт 5 книг
+@startuml S4_Limit_Refused
+title UC_Borrow: Відмова при перевищенні ліміту 5 позик
+actor "Читач" as R
+participant "Сервіс видачі" as S
+participant "Видача (LOAN)" as N
+R -> S : запит видачі книги
+activate S
+S -> N : перевірити кількість активних позик
+activate N
+N --> S : 5 активних позик
+deactivate N
+alt активних позик 5 і більше
+  S --> R : відмова через перевищення ліміту
+else менше 5
+  S --> R : перейти до видачі
 end
-deactivate LoanService
-deactivate WebUI
+deactivate S
 @enduml
 
-@startuml d5-return-overdue-fine
-autonumber
-
-actor "Читач" as Reader
-participant "Web UI" as WebUI
-participant "Loan Service" as LoanService
-participant "Member Service" as MemberService
-participant "Catalog Service" as CatalogService
-participant "Reservation Service" as ReservationService
-participant "Notification Service" as NotificationService
-participant "Data Access" as DataAccess
-database "БД" as DB
-
-Reader -> WebUI : повернення книги
-activate WebUI
-WebUI -> LoanService : returnBook(loanId)
-activate LoanService
-LoanService -> DB : findLoan(loanId)
-activate DB
-DB --> LoanService : loan
-deactivate DB
-alt Прострочено
-  LoanService -> DB : updateLoan(loanId, returned_at, status="повернено")
-  activate DB
-  DB --> LoanService : ok
-  deactivate DB
-  LoanService -> DB : createFine(loanId, amount, paid=false)
-  activate DB
-  DB --> LoanService : fine
-  deactivate DB
-  LoanService -> DB : updateCopyStatus(loan.copyId, "доступний")
-  activate DB
-  DB --> LoanService : ok
-  deactivate DB
-  LoanService --> WebUI : штраф створено
-  WebUI --> Reader : повідомлення про штраф
-else Вчасно
-  LoanService -> DB : updateLoan(loanId, returned_at, status="повернено")
-  activate DB
-  DB --> LoanService : ok
-  deactivate DB
-  LoanService -> DB : updateCopyStatus(loan.copyId, "доступний")
-  activate DB
-  DB --> LoanService : ok
-  deactivate DB
-  LoanService --> WebUI : повернення прийнято
-  WebUI --> Reader : без штрафу
+@startuml S5_Copy_Blocked
+title UC_Borrow: Примірник на руках блокує видачу
+actor "Читач 2" as R2
+participant "Сервіс видачі" as S
+participant "Примірник (BOOK_COPY)" as C
+R2 -> S : запит видачі примірника
+activate S
+S -> C : перевірити статус примірника
+activate C
+C --> S : статус «на руках»
+deactivate C
+alt примірник недоступний
+  S --> R2 : відмова, примірник недоступний
+else примірник доступний
+  S --> R2 : видача дозволена
 end
-deactivate LoanService
-deactivate WebUI
+deactivate S
 @enduml
