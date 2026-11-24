@@ -4,6 +4,7 @@
 
 ## activity-borrow
 
+![Діаграма діяльності: видача книги](activity.png)
 ```plantuml
 @startuml activity-borrow
 skinparam defaultFontSize 14
