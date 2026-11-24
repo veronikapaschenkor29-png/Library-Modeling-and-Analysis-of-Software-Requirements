@@ -1,23 +1,22 @@
-# ER-діаграма бібліотеки
+# ER-модель бібліотеки
 
 ```mermaid
 erDiagram
-    BOOK ||--o{ BOOK_COPY : has
-    BOOK ||--o{ BOOK_AUTHOR : has
-    AUTHOR ||--o{ BOOK_AUTHOR : writes
-    BOOK_COPY ||--o{ LOAN : issued
-    MEMBER ||--o{ LOAN : borrows
-    MEMBER ||--o{ RESERVATION : makes
-    BOOK ||--o{ RESERVATION : reserved
-    LOAN ||--o{ FINE : incurs
-    GENRE ||--o{ GENRE : "parent of"
-    BOOK ||--o{ BOOK_GENRE : has
-    GENRE ||--o{ BOOK_GENRE : classifies
-    USER ||--o| MEMBER : is
-    USER ||--o| LIBRARIAN : is
+    BOOK ||--o{ BOOK_COPY : "має примірник"
+    BOOK ||--o{ BOOK_AUTHOR : "має автора"
+    AUTHOR ||--o{ BOOK_AUTHOR : "пише"
+    BOOK_COPY ||--o{ LOAN : "видається"
+    MEMBER ||--o{ LOAN : "позичає"
+    MEMBER ||--o{ RESERVATION : "бронює"
+    BOOK ||--o{ RESERVATION : "бронюється"
+    LOAN ||--o{ FINE : "має штраф"
+    GENRE ||--o{ GENRE : "є підтипом"
+    BOOK }o--o{ GENRE : "класифікується"
+    USER ||--o| MEMBER : "є читачем"
+    USER ||--o| LIBRARIAN : "є бібліотекарем"
 
     BOOK {
-        uuid id PK
+        string id PK
         string title
         string isbn UK
         int year
@@ -25,27 +24,33 @@ erDiagram
     }
 
     BOOK_COPY {
-        uuid id PK
-        uuid book_id FK
+        string id PK
+        string book_id FK
         string inventory_number UK
         string condition
         string status
     }
 
     AUTHOR {
-        uuid id PK
+        string id PK
         string name
     }
 
     BOOK_AUTHOR {
-        uuid book_id FK
-        uuid author_id FK
+        string book_id PK, FK
+        string author_id PK, FK
         int author_order
     }
-    %% PK: (book_id, author_id)
+
+    GENRE {
+        string id PK
+        string parent_id FK
+        string name
+        string slug UK
+    }
 
     USER {
-        uuid id PK
+        string id PK
         string email UK
         string password_hash
         string first_name
@@ -55,54 +60,43 @@ erDiagram
     }
 
     MEMBER {
-        uuid id PK
-        uuid user_id FK
+        string id PK
+        string user_id FK
         string status
     }
 
     LIBRARIAN {
-        uuid id PK
-        uuid user_id FK
+        string id PK
+        string user_id FK
         string employee_code
     }
 
     LOAN {
-        uuid id PK
-        uuid copy_id FK
-        uuid member_id FK
+        string id PK
+        string copy_id FK
+        string member_id FK
         datetime issued_at
         datetime due_at
         datetime returned_at
     }
 
     RESERVATION {
-        uuid id PK
-        uuid book_id FK
-        uuid member_id FK
+        string id PK
+        string book_id FK
+        string member_id FK
         datetime created_at
         string status
     }
 
     FINE {
-        uuid id PK
-        uuid loan_id FK
+        string id PK
+        string loan_id FK
         decimal amount
         string reason
         boolean paid
     }
-
-    GENRE {
-        uuid id PK
-        uuid parent_id FK
-        string name
-        string slug UK
-    }
-
-    BOOK_GENRE {
-        uuid book_id FK
-        uuid genre_id FK
-    }
-    %% PK: (book_id, genre_id)
 ```
 
-Складені PK: `BOOK_AUTHOR(book_id, author_id)`, `BOOK_GENRE(book_id, genre_id)`.
+BOOK_AUTHOR - асоціативна сутність: зв'язок BOOK ↔ AUTHOR несе власний атрибут author_order (правило 10), тому не зводиться до прямого M:N.
+Розбіжність з spec.md: BOOK_GENRE не є сутністю (правило 9) - M:N BOOK ↔ GENRE показано прямим зв'язком; spec.md залишено без змін.
+Концептуальна модель, без фізичної схеми (SQL DDL, ORM).
