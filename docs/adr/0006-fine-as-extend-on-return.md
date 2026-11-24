@@ -42,4 +42,5 @@ ADR 0004 вже визначив, що `FINE` створюється лише п
 * `task-2/usecase.puml`
 * `task-2/ears.md` (EARS-06)
 * `task-2/DEFENSE.md` (§3)
+* `task-3/sequence.md` (sequence-діаграми сценаріїв UC_Borrow; файли лежать у гілці task-3-sequence)
 * `docs/adr/0009-modular-monolith-api-gateway-adapters-outbox.md`
