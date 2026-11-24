@@ -11,7 +11,7 @@ skinparam ranksep 190
 skinparam nodesep 140
 skinparam ArrowFontSize 10
 skinparam packagePadding 55
-title Component Diagram — Бібліотека (Завдання 5)
+title Component Diagram - Бібліотека (Завдання 5)
 
 package "Клієнт" #E3F2FD {
   [Web UI] as WebUI
