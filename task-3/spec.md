@@ -26,7 +26,7 @@ FINE не є учасником цієї взаємодії, бо створює
 
 | № | Сценарій (з Gherkin) | Діаграма (sequence.puml, @startuml-ідентифікатор) | Фрагмент (alt/opt/loop) | Сутності |
 | :--- | :--- | :--- | :--- | :--- |
-| S1 | Успішна видача (EARS-01) | S1_Success | alt (ліміт не перевищено і боргів немає) | MEMBER, BOOK_COPY, LOAN |
+| S1 | Успішна видача (EARS-01) | S1_Success | alt (ліміт не перевищено і боргів немає) | MEMBER, LIBRARIAN, BOOK_COPY, LOAN |
 | S2 | Книги немає → пропозиція забронювати (EARS-04) | S2_NoCopy_Reserve | alt (немає вільного примірника) | BOOK_COPY, RESERVATION, MEMBER |
 | S3 | Є прострочені борги → відмова (EARS-02) | S3_Debts_Refused | alt (є прострочені видачі) | MEMBER, LOAN |
 | S4 | Перевищено ліміт 5 книг → відмова (EARS-03) | S4_Limit_Refused | alt (активних позик 5 і більше) | MEMBER, LOAN |

@@ -43,7 +43,7 @@
 
 | Сценарій | Діаграма (ідентифікатор) | Сутності ER | Перевірка |
 | :--- | :--- | :--- | :--- |
-| S1 | S1_Success | MEMBER, BOOK_COPY, LOAN | огляд / рендер |
+| S1 | S1_Success | MEMBER, LIBRARIAN, BOOK_COPY, LOAN | огляд / рендер |
 | S2 | S2_NoCopy_Reserve | BOOK_COPY, RESERVATION, MEMBER | огляд / рендер |
 | S3 | S3_Debts_Refused | MEMBER, LOAN | огляд / рендер |
 | S4 | S4_Limit_Refused | MEMBER, LOAN | огляд / рендер |
