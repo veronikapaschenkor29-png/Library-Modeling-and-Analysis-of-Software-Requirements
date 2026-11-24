@@ -6,8 +6,8 @@ actor "User" as User <<abstract>>
 actor "Читач" as Reader
 actor "Бібліотекар" as Librarian
 
-Reader --|> User
-Librarian --|> User
+User <|-- Reader
+User <|-- Librarian
 
 rectangle "Бібліотека" {
   usecase "UC_Auth\nАвтентифікація" as Auth
@@ -19,15 +19,16 @@ rectangle "Бібліотека" {
   usecase "UC_PayFine\nОплата штрафу" as PayFine
 }
 
-Reader --> Auth
-Reader --> Search
-Reader --> Borrow
-Reader --> Reserve
-Reader --> Return
-Reader --> PayFine
-Librarian --> Return
-Librarian --> Borrow
-Librarian --> Auth
+Reader -- Auth
+Reader -- Search
+Reader -- Filter
+Reader -- Borrow
+Reader -- Reserve
+Reader -- Return
+Reader -- PayFine
+Librarian -- Auth
+Librarian -- Borrow
+Librarian -- Return
 
 Filter ..> Search : <<extend>>
 Reserve ..> Borrow : <<extend>>
