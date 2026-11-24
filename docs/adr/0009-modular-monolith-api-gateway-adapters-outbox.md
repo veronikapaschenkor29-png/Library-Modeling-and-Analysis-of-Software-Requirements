@@ -24,7 +24,7 @@
 
 ## Decision Outcome
 
-Обрано **Варіант 3**. Архітектура — модульний моноліт. `API Gateway` є єдиною точкою входу. Доменні сервіси (`Catalog`, `Loan`, `Member`, `Reservation`, `Auth`, `Notification`) працюють через інтерфейси. Зовнішні системи доступні лише через `Payment Adapter`, `Identity Adapter`, `Notification Service`. Події (повернення/бронювання) передаються через `IOutbox` (Data Access) і ретранслюються `Outbox Relay Worker`. `Overdue Scheduler` створює `FINE` за прострочені `LOAN`.
+Обрано **Варіант 3**. Архітектура - модульний моноліт. `API Gateway` є єдиною точкою входу. Доменні сервіси (`Catalog`, `Loan`, `Member`, `Reservation`, `Auth`, `Notification`) працюють через інтерфейси. Зовнішні системи доступні лише через `Payment Adapter`, `Identity Adapter`, `Notification Service`. Події (повернення/бронювання) передаються через `IOutbox` (Data Access) і ретранслюються `Outbox Relay Worker`. `Overdue Scheduler` створює `FINE` за прострочені `LOAN`.
 
 Компоненти: `Web UI`, `API Gateway`, `Auth Service`, `Catalog Service`, `Loan Service`, `Member Service`, `Reservation Service`, `Notification Service`, `Data Access`, `Payment Adapter`, `Identity Adapter`, `Outbox Relay Worker`, `Overdue Scheduler`, `БД`.
 
