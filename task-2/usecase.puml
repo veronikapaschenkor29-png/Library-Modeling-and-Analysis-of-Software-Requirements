@@ -12,23 +12,21 @@ User <|-- Librarian
 rectangle "Бібліотека" {
   usecase "UC_Auth\nАвтентифікація" as Auth
   usecase "UC_Search\nПошук книг" as Search
-  usecase "UC_Filter\nФільтр за жанром або автором" as Filter
+  usecase "UC_Filter\nФільтр" as Filter
   usecase "UC_Borrow\nПозичення книги" as Borrow
   usecase "UC_Reserve\nБронювання книги" as Reserve
   usecase "UC_Return\nПовернення книги" as Return
   usecase "UC_PayFine\nОплата штрафу" as PayFine
 }
 
-Reader -- Auth
-Reader -- Search
-Reader -- Filter
-Reader -- Borrow
-Reader -- Reserve
-Reader -- Return
-Reader -- PayFine
-Librarian -- Auth
-Librarian -- Borrow
-Librarian -- Return
+User --> Auth
+Reader --> Search
+Reader --> Borrow
+Reader --> Reserve
+Reader --> Return
+Reader --> PayFine
+Librarian --> Borrow
+Librarian --> Return
 
 Filter ..> Search : <<extend>>
 Reserve ..> Borrow : <<extend>>
