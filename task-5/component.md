@@ -1,4 +1,5 @@
 # Component Diagram: архітектура бібліотеки (Завдання 5)
+![Діаграма компонентів](component.png)
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk", "curve": "step", "nodeSpacing": 60, "rankSpacing": 70}}}%%
