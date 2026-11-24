@@ -16,23 +16,23 @@
 
 | Компонент | Сутності ER | UC / EARS (task-2) | Sequence (task-3) | Activity (task-4) |
 |---|---|---|---|---|
-| Web UI | — | Borrow, Return, Reserve | Діагр. 1–5 | кроки читача |
-| API Gateway | — | усі захищені UC | усі | маршрутизація |
+| Web UI | - | Borrow, Return, Reserve | Діагр. 1–5 | кроки читача |
+| API Gateway | - | усі захищені UC | усі | маршрутизація |
 | Catalog Service | BOOK, BOOK_COPY, BOOK_AUTHOR, BOOK_GENRE | Borrow, Reserve (наявність) | Діагр. 1, 2 | S2, S9 |
 | Loan Service | LOAN, BOOK_COPY, FINE | Borrow, Return, CreateFine | Діагр. 1–5 | S3, S4, S10, S11, S13 |
 | Member Service | MEMBER/USER | CheckDebts | Діагр. 3, 4 | S1a, S1b |
 | Reservation Service | RESERVATION, BOOK | Reserve | Діагр. 2 | S9 |
-| Notification Service | — | — | — | S5, S6, S12 |
-| Data Access | усі сутності | усі | виклики БД | — |
-| Payment Adapter | FINE (оплата) | — | — | — |
-| Identity Adapter | USER | — | — | — |
-| Database | усі сутності | — | — | — |
+| Notification Service | - | - | - | S5, S6, S12 |
+| Data Access | усі сутності | усі | виклики БД | - |
+| Payment Adapter | FINE (оплата) | - | - | - |
+| Identity Adapter | USER | - | - | - |
+| Database | усі сутності | - | - | - |
 
 ## 3. Зовнішні інтеграції
 
-* `Payment` — через `Payment Adapter` (`IPaymentPort`).
-* `Email/SMS` — через `Notification Service` (`IEmailSender`).
-* `OAuth/Identity` — через `Identity Adapter` (`IOAuthPort`).
+* `Payment` - через `Payment Adapter` (`IPaymentPort`).
+* `Email/SMS` - через `Notification Service` (`IEmailSender`).
+* `OAuth/Identity` - через `Identity Adapter` (`IOAuthPort`).
 
 ## 4. Інтерфейси (provided / required)
 
@@ -50,8 +50,8 @@
 
 ## 5. Транзакції і події
 
-* **Видача (`borrowBook`):** в одній транзакції — перевірка боргів/ліміту (Member Service), вибір доступного `BOOK_COPY`, створення `LOAN`, оновлення `BOOK_COPY.status` → «на руках»; блокування рядка примірника (`SELECT ... FOR UPDATE`) або унікальний статус для уникнення гонок.
-* **Повернення (`returnBook`):** в одній транзакції — оновлення `LOAN` (`returned_at`, статус), створення `FINE` за прострочення (ADR 0004), оновлення `BOOK_COPY.status` → «доступний».
+* **Видача (`borrowBook`):** в одній транзакції - перевірка боргів/ліміту (Member Service), вибір доступного `BOOK_COPY`, створення `LOAN`, оновлення `BOOK_COPY.status` → «на руках»; блокування рядка примірника (`SELECT ... FOR UPDATE`) або унікальний статус для уникнення гонок.
+* **Повернення (`returnBook`):** в одній транзакції - оновлення `LOAN` (`returned_at`, статус), створення `FINE` за прострочення (ADR 0004), оновлення `BOOK_COPY.status` → «доступний».
 * **Події:** повернення/бронювання → outbox (Loan/Reservation Service) → Outbox Relay → Notification Service → Email/SMS (`sendLoanCreated`, `sendReminder`, повідомлення про повернення).
 * **Overdue Scheduler:** періодично знаходить прострочені `LOAN` і створює `FINE` (ADR 0004), надсилає нагадування через outbox.
 
@@ -59,9 +59,9 @@
 
 * Розгортання в Kubernetes / багатовузловий кластер.
 * Окремий пошуковий рушій; пошук виконується в БД.
-* Кешування (Redis) — може бути додано пізніше без зміни інтерфейсів.
+* Кешування (Redis) - може бути додано пізніше без зміни інтерфейсів.
 * Адміністративна роль / backoffice.
-* Оплата штрафів через зовнішній платіжний шлюз — може бути додана пізніше (Payment Adapter).
+* Оплата штрафів через зовнішній платіжний шлюз - може бути додана пізніше (Payment Adapter).
 
 ## 7. Критерії перевірки
 

@@ -4,7 +4,7 @@ skinparam packageStyle rectangle
 skinparam defaultTextAlignment center
 skinparam shadowing false
 
-title Component Diagram — Бібліотека (Завдання 5)
+title Component Diagram - Бібліотека (Завдання 5)
 
 package "Клієнт" #E3F2FD {
   [Web UI] as WebUI

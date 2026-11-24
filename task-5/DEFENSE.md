@@ -1,4 +1,4 @@
-# DEFENSE — Завдання 5: Компонентна архітектура бібліотеки
+# DEFENSE - Завдання 5: Компонентна архітектура бібліотеки
 
 ## 1. Що я просив у AI
 Змоделювати компонентну архітектуру бібліотеки: компоненти, provided/required-інтерфейси, ізоляцію зовнішніх систем, узгодженість з ER/UC/EARS/sequence/activity. Промпти: `ai/05-task5-component.md`.
@@ -12,7 +12,7 @@
 | 3 | Розбіжні назви інтерфейсів: `ILoanService`/`INotificationPort`/`IPaymentPort`/`IOAuthPort` без Api-рівня та без узгодження зі spec | `ai/05-task5-component.md` · `task-5/spec.md` §4 | Узгоджено набір: `ILoanApi`, `IMemberApi`, `ICatalogApi`, `IReservationApi`, `ILoanService`, `IMemberService`, `ICatalogService`, `IReservationService`, `IPaymentPort`, `IOAuthPort`, `INotificationPort`, `IEmailSender` (`b121dc8`, `c07fee9`) |
 
 ## 3. Ключове рішення
-Модульний моноліт: єдиний deployable, внутрішні модулі-сервіси (Catalog, Loan, Member, Reservation, Notification) з чіткими інтерфейсами; зовнішні системи (Payment, OAuth/Identity, Email/SMS) ізольовані адаптерами. Транзакції `borrowBook`/`returnBook` — в одній БД через Data Access; події — через outbox. Деталі: `task-5/spec.md`, `docs/adr/`.
+Модульний моноліт: єдиний deployable, внутрішні модулі-сервіси (Catalog, Loan, Member, Reservation, Notification) з чіткими інтерфейсами; зовнішні системи (Payment, OAuth/Identity, Email/SMS) ізольовані адаптерами. Транзакції `borrowBook`/`returnBook` - в одній БД через Data Access; події - через outbox. Деталі: `task-5/spec.md`, `docs/adr/`.
 
 ## 4. Перевірка
 - Узгодженість з моделями: кожен компонент трасується до ER/UC/EARS/sequence/activity (`task-5/spec.md` §2).
