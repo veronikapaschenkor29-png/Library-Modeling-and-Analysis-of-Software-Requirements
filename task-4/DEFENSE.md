@@ -54,4 +54,4 @@
 | Смуги ⊆ учасники послідовності | не застосовно | Читач, Система, Бібліотекар ⊆ учасники Завдання 3 | огляд |
 | Вузли даних ⊆ сутності ER | не застосовно | MEMBER, LIBRARIAN, BOOK_COPY, LOAN, RESERVATION | огляд |
 
-Заборонено: символ «—» (лише «-»), STORE, PRODUCT, ORDER, REVIEW, CATEGORY, Seller, Customer, Anonymous, BOOK_GENRE.
+Заборонено: символ «-» (лише «-»), STORE, PRODUCT, ORDER, REVIEW, CATEGORY, Seller, Customer, Anonymous, BOOK_GENRE.
