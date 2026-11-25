@@ -63,16 +63,16 @@ erDiagram
 
 | Сутність | PK | UK | FK |
 |---|---|---|---|
-| BOOK | id (UUID) | isbn | — |
+| BOOK | id (UUID) | isbn | - |
 | BOOK_COPY | id (UUID) | inventory_number | book_id → BOOK |
-| AUTHOR | id (UUID) | — | — |
-| BOOK_AUTHOR | (book_id, author_id) | — | book_id → BOOK, author_id → AUTHOR |
-| USER | id (UUID) | email | — |
+| AUTHOR | id (UUID) | - | - |
+| BOOK_AUTHOR | (book_id, author_id) | - | book_id → BOOK, author_id → AUTHOR |
+| USER | id (UUID) | email | - |
 | MEMBER | user_id (PK/FK) | card_number | user_id → USER |
 | LIBRARIAN | user_id (PK/FK) | employee_number | user_id → USER |
-| LOAN | id (UUID) | — | member_id → MEMBER, book_copy_id → BOOK_COPY |
-| RESERVATION | id (UUID) | — | member_id → MEMBER, book_copy_id → BOOK_COPY |
-| FINE | id (UUID) | — | loan_id → LOAN |
+| LOAN | id (UUID) | - | member_id → MEMBER, book_copy_id → BOOK_COPY |
+| RESERVATION | id (UUID) | - | member_id → MEMBER, book_copy_id → BOOK_COPY |
+| FINE | id (UUID) | - | loan_id → LOAN |
 | GENRE | id (UUID) | slug | parent_id → GENRE (Optional) |
 
 **Коміти:** `a83f0a9`, `915e1f4`, `7d5afdd`
